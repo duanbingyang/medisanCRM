@@ -1,0 +1,516 @@
+<template>
+  <view class="container">
+    <text class="titleStyle">哈三联&nbsp;&nbsp;为您服务</text>
+    <view class="containerBox">
+      <row 
+        justify="start"
+        margin="{{40}}"
+        class="rowstyle"
+      >
+        <text class="textStyle">姓名：</text>
+        <input 
+          placeholder='请输入你的用户名' 
+          focus="{{isfocus}}" 
+          c-bind:input="nameInput" 
+          cStyle="padding-top: 22cpx;padding-bottom: 22cpx;font-size: 26cpx;"
+          style="flex:3"
+          return-key-type='next'
+        ></input>
+      </row>
+      <row
+        justify="start"
+        margin="{{40}}"
+        class="rowstyle rowpick"
+      >
+        <text class="select-text textStyle">性别：</text><text>{{sex[sexIndex]}}</text>
+        <text class="textHide" c-bind:tap="showClick" id='sex'></text>
+        <c-picker-panel 
+            c-if="{{pickerShow.sex}}" 
+            show="{{pickerShow.sex}}" 
+            height="{{500}}" 
+            header-height="{{100}}" 
+            c-bind:cancel="cancel"
+            c-bind:confirm="confirm">
+                <c-picker-item 
+                    text-align="center" 
+                    height="{{400}}" 
+                    list="{{sex}}" 
+                    default-index="{{defaultSexIndex}}"
+                    c-bind:selectchange="sexSelectchange">
+                </c-picker-item>
+        </c-picker-panel>
+      </row>
+      <row 
+        justify="start"
+        margin="{{40}}"
+        class="rowstyle"
+      >
+        <text class="textStyle">手机：</text>
+        <input 
+          placeholder='请输入你的手机号'
+          cStyle="padding-top: 22cpx;padding-bottom:22cpx;font-size: 26cpx;"
+          style="flex:3"
+          type="number"
+          maxlength="{{11}}"
+          c-bind:input="mobileInput"
+          return-key-type='next'
+        >
+        </input>
+      </row>
+      <row 
+        justify="start"
+        margin="{{40}}"
+        class="rowstyle"
+      >
+        <text class="textStyle">验证码：</text>
+        <row style="flex: 3">
+          <input 
+            placeholder='请输入验证码'
+            cStyle="width: 300cpx;height: 40px;border-radius: 4px 0 0 4px;padding-top: 22cpx;padding-bottom: 22cpx;font-size: 26cpx;"
+            maxlength="{{4}}"
+            c-bind:input="codeInput"
+            return-key-type='next'
+          >
+          </input>
+          <button
+            type="blue"
+            text="{{sendCodeText}}"
+            disabled="{{sendCodeDis}}"
+            c-bind:onclick="sendCode"
+            size="auto"
+            btn-style="height: 40px;border-radius: 0 4px 4px 0;padding: 22cpx 0;line-height: normal;width: 186cpx"
+            text-style="font-size:26cpx;"
+          >  
+          </button>
+        </row>
+      </row>
+      <row
+        justify="start"
+        margin="{{40}}"
+        class="rowstyle rowpick"
+      >
+        <text class="select-text textStyle">所在地：</text><text>{{provins[provinsIndex]}}</text>
+        <text class="textHide" c-bind:tap="showClick"  id='provins'></text>
+        <c-picker-panel 
+            c-if="{{pickerShow.provins}}" 
+            show="{{pickerShow.provins}}" 
+            height="{{500}}" 
+            header-height="{{100}}" 
+            c-bind:cancel="cancel"
+            c-bind:confirm="confirm">
+                <c-picker-item 
+                    text-align="center" 
+                    height="{{400}}" 
+                    list="{{provins}}" 
+                    default-index="{{defaultProvinsIndex}}"
+                    c-bind:selectchange="provinsSelectchange">
+                </c-picker-item>
+        </c-picker-panel>
+      </row>
+      <row 
+        justify="start"
+        margin="{{40}}"
+        class="rowstyle"
+      >
+        <text class="textStyle">工作单位：</text>
+        <input 
+          placeholder='请输入你的工作单位' 
+          focus="{{isfocus}}" 
+          c-bind:input="companyInput" 
+          cStyle="padding-top: 22cpx;padding-bottom: 22cpx;font-size: 26cpx;"
+          style="flex:3"
+          return-key-type='next'
+        ></input>
+      </row>
+    </view>
+    <button
+      style="margin-top: 100cpx"
+      type="blue"
+      text="确定"
+      disabled="{{submitDis}}"
+      c-bind:onclick="submitForm"
+      class="submitBtn"
+    >  
+    </button>
+  </view>
+</template>
+
+<script>
+import cml from 'chameleon-api'
+import md5 from 'md5'
+import localStorage from 'localStorage'
+
+class UserInfo   {
+
+  data = {
+    isfocus: false,
+    submitDis: false,
+    sendCodeText: '发送验证码',
+    sendCodeDis: false,
+    code: '后台返回的验证码',
+    userInputCode: '用户输入的验证码',
+    only: true,
+    sex: [
+      '男',
+      '女'
+    ],
+    formData: {
+      username: '',
+      address_prov: '北京市',
+      phone: '' ,
+      sex: '男',
+      company: ''
+    },
+    provins: [
+      "北京市",
+      "天津市",
+      "河北省",
+      "山西省",
+      "内蒙古",
+      "辽宁省",
+      "吉林省",
+      "黑龙江省",
+      "上海市",
+      "江苏省",
+      "浙江省",
+      "安徽省",
+      "福建省",
+      "江西省",
+      "山东省",
+      "河南省",
+      "湖北省",
+      "湖南省",
+      "广东省",
+      "广西",
+      "海南省",
+      "重庆市",
+      "四川省",
+      "贵州省",
+      "云南省",
+      "西藏",
+      "陕西省",
+      "甘肃省",
+      "青海",
+      "宁夏",
+      "新疆"
+    ],
+    defaultSexIndex: 0,
+    defaultProvinsIndex: 0,
+    sexIndex: 0,
+    provinsIndex: 0,
+    pickerShow: {
+      provins: false,
+      sex: false
+    }
+  }
+
+  computed = {
+  }
+
+  watch  = {
+  }
+
+  /*
+    bindblurevent  输入框失焦
+    testclick 提交按钮
+    selectchange  底部滚动选择
+    showClick 底部滚动选择
+    cancel  底部滚动选择
+    confirm 底部滚动选择
+    sendCode 发送验证码按钮
+    time  验证码倒计时
+  **/
+  methods = {
+    bindblurevent()  {
+      this.isfocus = false;
+    },
+    submitForm(e) {
+      const _this = this;
+      let type = e.detail.type
+      cml.showToast({
+        message: type + ' button'
+      })
+      console.log(this.formData)
+
+      this.submitDis = true;
+      if(this.userInputCode === this.code){
+        cml.post({
+          url: 'http://192.168.31.59:3000/api/addUser_crm',
+          data: this.formData
+        }).then(res => {
+          cml.showToast({
+            message: JSON.stringify(res),
+            duration: 2000
+          })
+          localStorage.setItem('userSign', _this.code)
+        }, err => {
+          cml.showToast({
+            message: JSON.stringify(err),
+            duration: 2000
+          })
+          console.log(err)
+        })
+      }else{
+        cml.showToast({
+          message: '验证码输入有误',
+          duration: 2000
+        })
+        this.submitDis = false;
+      }
+      
+          cml.navigateTo({
+            path: '/pages/complate/complate',
+            query: {
+              title: '提交成功',
+              mainMessage: '可以凭此页面向工作人员领取精美礼品',
+              subMessage: ''
+            }
+          })
+    },
+
+    provinsSelectchange(e) {
+      this.provinsIndex = this.defaultProvinsIndex = e.detail.index
+      this.formData.address_prov = this.provins[ e.detail.index ]
+    }, 
+    sexSelectchange(e) {
+      this.sexIndex = this.defaultSexIndex = e.detail.index
+      this.formData.sex = this.sex[ e.detail.index ]
+    }, 
+    showClick(e) {
+      const target = e.target.id;
+      const allPicker = this.pickerShow;
+      allPicker[target] = true;
+    },
+    cancel(e) {
+      console.log(e)
+      const allPicker = this.pickerShow;
+      for (let key in allPicker) {
+        allPicker[key] = false;
+      }
+    },
+    confirm(e,v) {
+      console.log(e)
+      const allPicker = this.pickerShow;
+      for (let key in allPicker) {
+        allPicker[key] = false;
+      }
+    },
+    sendCode() {
+      const timestamp = Date.parse(new Date()) / 1000;
+      const sdkappid = 1400245773;
+      const random = Math.floor(Math.random()*10+1);
+      let wait = 10;
+      // 倒计时，过程中按钮置灰
+      this.time(wait)
+      this.sendCodeDis = true;
+      cml.post({
+        url: 'http://192.168.31.59:3000/api/vCode',
+        data: {
+          mobile: this.formData.phone,
+          nationcode: "86",
+          time: timestamp
+        }
+      }).then(res => {
+        if(res.currentAuthority.result){
+          cml.showToast({
+            message: res.currentAuthority.errmsg,
+            duration: 2000
+          })
+        }else{
+          cml.showToast({
+            message: '验证码已发送至您手机',
+            duration: 2000
+          })
+        }
+        this.code = res.currentAuthority.code;
+        console.log(res.currentAuthority.code, '___________________')
+      }, err => {
+        cml.showToast({
+          message: JSON.stringify(err),
+          duration: 2000
+        })
+        console.log(err)
+      })
+    },
+    time(wait) {
+      let timeout;
+      if (wait == 0) {
+        wait = 60;
+        this.sendCodeText = "发送验证码";
+        this.sendCodeDis = false;
+      } else if(wait > 0) {
+        this.sendCodeText = "重新发送" + wait ;
+        wait--;
+        timeout = setTimeout(() => {
+          this.time(wait)
+        },
+        1000)
+      }
+    },
+    nameInput(event) {
+      this.formData.username = event.detail.value
+    },
+    mobileInput(event) {
+      this.formData.phone = event.detail.value
+    },
+    codeInput(event) {
+      const code_md5 = md5(event.detail.value)
+      this.userInputCode = code_md5
+    },
+    companyInput(event) {
+      this.formData.company = event.detail.value
+    }
+  }
+
+  beforeCreate() {
+    console.log(12345)
+    if(localStorage.getItem('userSign')){
+      cml.navigateTo({
+        path: '/pages/complate/complate',
+        query: {
+          title: '您已领取过啦',
+          mainMessage: '您已经参与过活动，谢谢您的热情参与',
+          subMessage: ''
+        }
+      })
+    }
+  }
+
+  created() {
+  }
+
+  beforeMount() {
+  }
+
+  mounted() {
+  }
+
+  beforeDestroy() {
+  }
+
+  destroyed() {
+  }
+}
+
+export default new UserInfo();
+</script>
+
+<style scoped>
+.container {
+  background-image: url('../../assets/images/bg2.png');
+  background-size: auto 100%;
+  background-position: center center;
+  width: 100%;
+  height: 100%;
+}
+.titleStyle{
+  /* margin-top: 300cpx; */
+  text-align: center;
+  margin-top: 120cpx;
+  font-size: 46cpx;
+  font-style: block;
+}
+.containerBox{
+  /* background-color: rgba(255,255,255,0.6);*/
+  margin-top: 70cpx;
+}
+.page-demo {
+  background: #fafafa;
+}
+.title-text {
+  color: #999;
+  margin: 30cpx 20cpx 10cpx;
+  display: block;
+  font-size: 28cpx;
+}
+.picker-item {
+  background: #fff;
+  border-top: 1px solid #d9d9d9;
+  border-bottom: 1px solid #d9d9d9;
+  display: flex;
+  flex-direction: row;
+}
+.picker-text-left {
+  font-size: 40cpx;
+  height: 70cpx;
+  line-height: 70cpx;
+  margin-left: 20cpx;
+  width: 300cpx;
+}
+.picker-text-right {
+  font-size: 40cpx;
+  height: 70cpx;
+  line-height: 70cpx;
+  margin-left: 20cpx;
+  flex: 1;
+  text-align: center;
+}
+.select-text {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.rowstyle{
+  padding: 0 50cpx;
+}
+.textStyle{
+  min-width: 120cpx;
+  flex: 1;
+  justify-content:start;
+}
+.textStyle + .cml-text{
+  flex:3;
+  border: 1px solid #999999;
+  background-color: #FFF;
+  padding: 11px 20cpx;
+  font-size: 26cpx;
+  border-radius: 4px;
+  margin-left: 15cpx;
+}
+.textHide{
+  visibility: none;
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.submitBtn{
+  width: 500cpx;
+  margin: 0 auto;
+}
+</style>
+
+<script cml-type="json">
+{
+  "base": {
+    "usingComponents": {
+        "c-actionsheet": "cml-ui/components/c-actionsheet/c-actionsheet",
+        "c-picker-panel": "cml-ui/components/c-picker-panel/c-picker-panel",
+        "c-picker": "cml-ui/components/c-picker/c-picker",
+        "c-picker-item": "cml-ui/components/c-picker-item/c-picker-item"
+      }
+  },
+  "qq": {},
+  "wx": {
+    "navigationBarTitleText": "index",
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#E2E2E2"
+  },
+  "alipay": {
+    "defaultTitle": "index",
+    "pullRefresh": false,
+    "allowsBounceVertical": "YES",
+    "titleBarColor": "#ffffff"
+  },
+  "baidu": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "index",
+    "backgroundColor": "#ffffff",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false,
+    "onReachBottomDistance": 50
+  }
+}
+</script>

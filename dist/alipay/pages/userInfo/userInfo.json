@@ -1,0 +1,15 @@
+{
+    "usingComponents": {
+        "c-actionsheet": "./../../npm/cml-ui/components/c-actionsheet/c-actionsheet",
+        "c-picker-panel": "./../../npm/cml-ui/components/c-picker-panel/c-picker-panel",
+        "c-picker": "./../../npm/cml-ui/components/c-picker/c-picker",
+        "c-picker-item": "./../../npm/cml-ui/components/c-picker-item/c-picker-item",
+        "cml-buildin-button": "./../../npm/chameleon-ui-builtin/components/button/button",
+        "cml-buildin-input": "./../../npm/chameleon-ui-builtin/components/input/input",
+        "cml-buildin-row": "./../../npm/chameleon-ui-builtin/components/layout/row/row"
+    },
+    "defaultTitle": "index",
+    "pullRefresh": false,
+    "allowsBounceVertical": "YES",
+    "titleBarColor": "#ffffff"
+}

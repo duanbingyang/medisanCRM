@@ -1,0 +1,6 @@
+{
+    "usingComponents": {
+        "c-picker-panel": "./../../../../npm/cml-ui/components/c-picker-panel/c-picker-panel"
+    },
+    "component": true
+}

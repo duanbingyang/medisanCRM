@@ -1,0 +1,5 @@
+<view class="scroller-wrap  cml-base cml-view cml-2ec52de4">
+  <view class=" cml-base cml-view cml-2ec52de4"><demo-com title="{{title}}" image-src="{{chameleonSrc}}" class=" cml-base cml-demo-com cml-2ec52de4"></demo-com></view>
+  <text style="text-align:center;margin-top:100px" class=" cml-base cml-text cml-2ec52de4">{{mainMessage}}</text>
+  <text style="text-align:center;margin-top:100px" class=" cml-base cml-text cml-2ec52de4">{{subMessage}}</text>
+</view>

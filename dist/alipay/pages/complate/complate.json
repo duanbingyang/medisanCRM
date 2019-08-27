@@ -1,0 +1,9 @@
+{
+    "usingComponents": {
+        "demo-com": "./../../components/demo-com/demo-com"
+    },
+    "defaultTitle": "index",
+    "pullRefresh": false,
+    "allowsBounceVertical": "YES",
+    "titleBarColor": "#ffffff"
+}

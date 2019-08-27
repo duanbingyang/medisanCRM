@@ -1,0 +1,22 @@
+{
+  "mode": "history",
+  "domain": "http://www.medisan.cn",
+  "routes":[
+    {
+      "url": "/cml/h5/index",
+      "path": "/pages/index/index",
+      "name": "首页",
+      "mock": "index.php"
+    },
+    {
+      "url": "/cml/h5/userInfo",
+      "path": "/pages/userInfo/userInfo",
+      "name": "用户信息收集"
+    },
+    {
+      "url": "/cml/h5/resultPage",
+      "path": "/pages/complate/complate",
+      "name": "结果页面"
+    }
+  ]
+}

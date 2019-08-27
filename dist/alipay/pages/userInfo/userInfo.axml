@@ -1,0 +1,45 @@
+<view class="container  cml-base cml-view cml-b7232ce4">
+  <text class="titleStyle  cml-base cml-text cml-b7232ce4">哈三联  为您服务</text>
+  <view class="containerBox  cml-base cml-view cml-b7232ce4">
+    <view class="rowstyle  cml-base cml-view cml-b7232ce4"><cml-buildin-row justify="start" margin="{{40}}" class="rowstyle  cml-base cml-row cml-b7232ce4">
+      <text class="textStyle  cml-base cml-text cml-b7232ce4">姓名：</text>
+      <view style="flex:3" class=" cml-base cml-view cml-b7232ce4"><cml-buildin-input placeholder="请输入你的用户名" focus="{{isfocus}}" onInput="_cmlEventProxy" data-eventinput="{{['nameInput']}}" cStyle="padding-top: 22cpx;padding-bottom: 22cpx;font-size: 26cpx;" style="flex:3" return-key-type="next" class=" cml-base cml-input cml-b7232ce4"></cml-buildin-input></view>
+    </cml-buildin-row></view>
+    <view class="rowstyle rowpick  cml-base cml-view cml-b7232ce4"><cml-buildin-row justify="start" margin="{{40}}" class="rowstyle rowpick  cml-base cml-row cml-b7232ce4">
+      <text class="select-text textStyle  cml-base cml-text cml-b7232ce4">性别：</text><text class=" cml-base cml-text cml-b7232ce4">{{sex[sexIndex]}}</text>
+      <text class="textHide  cml-base cml-text cml-b7232ce4" onTap="_cmlEventProxy" data-eventtap="{{['showClick']}}" id="sex"></text>
+      <view a:if="{{pickerShow.sex}}" class=" cml-base cml-view cml-b7232ce4"><c-picker-panel show="{{pickerShow.sex}}" height="{{500}}" header-height="{{100}}" onCancel="_cmlEventProxy" data-eventcancel="{{['cancel']}}" onConfirm="_cmlEventProxy" data-eventconfirm="{{['confirm']}}" class=" cml-base cml-c-picker-panel cml-b7232ce4">
+              <view class=" cml-base cml-view cml-b7232ce4"><c-picker-item text-align="center" height="{{400}}" list="{{sex}}" default-index="{{defaultSexIndex}}" onSelectchange="_cmlEventProxy" data-eventselectchange="{{['sexSelectchange']}}" class=" cml-base cml-c-picker-item cml-b7232ce4">
+              </c-picker-item></view>
+      </c-picker-panel></view>
+    </cml-buildin-row></view>
+    <view class="rowstyle  cml-base cml-view cml-b7232ce4"><cml-buildin-row justify="start" margin="{{40}}" class="rowstyle  cml-base cml-row cml-b7232ce4">
+      <text class="textStyle  cml-base cml-text cml-b7232ce4">手机：</text>
+      <view style="flex:3" class=" cml-base cml-view cml-b7232ce4"><cml-buildin-input placeholder="请输入你的手机号" cStyle="padding-top: 22cpx;padding-bottom:22cpx;font-size: 26cpx;" style="flex:3" type="number" maxlength="{{11}}" onInput="_cmlEventProxy" data-eventinput="{{['mobileInput']}}" return-key-type="next" class=" cml-base cml-input cml-b7232ce4">
+      </cml-buildin-input></view>
+    </cml-buildin-row></view>
+    <view class="rowstyle  cml-base cml-view cml-b7232ce4"><cml-buildin-row justify="start" margin="{{40}}" class="rowstyle  cml-base cml-row cml-b7232ce4">
+      <text class="textStyle  cml-base cml-text cml-b7232ce4">验证码：</text>
+      <view style="flex:3" class=" cml-base cml-view cml-b7232ce4"><cml-buildin-row style="flex:3" class=" cml-base cml-row cml-b7232ce4">
+        <view class=" cml-base cml-view cml-b7232ce4"><cml-buildin-input placeholder="请输入验证码" cStyle="width: 300cpx;height: 40px;border-radius: 4px 0 0 4px;padding-top: 22cpx;padding-bottom: 22cpx;font-size: 26cpx;" maxlength="{{4}}" onInput="_cmlEventProxy" data-eventinput="{{['codeInput']}}" return-key-type="next" class=" cml-base cml-input cml-b7232ce4">
+        </cml-buildin-input></view>
+        <view class=" cml-base cml-view cml-b7232ce4"><cml-buildin-button type="blue" text="{{sendCodeText}}" disabled="{{sendCodeDis}}" onOnclick="_cmlEventProxy" data-eventonclick="{{['sendCode']}}" size="auto" btn-style="height: 40px;border-radius: 0 4px 4px 0;padding: 22cpx 0;line-height: normal;width: 186cpx" text-style="font-size:26cpx;" class=" cml-base cml-button cml-b7232ce4">  
+        </cml-buildin-button></view>
+      </cml-buildin-row></view>
+    </cml-buildin-row></view>
+    <view class="rowstyle rowpick  cml-base cml-view cml-b7232ce4"><cml-buildin-row justify="start" margin="{{40}}" class="rowstyle rowpick  cml-base cml-row cml-b7232ce4">
+      <text class="select-text textStyle  cml-base cml-text cml-b7232ce4">所在地：</text><text class=" cml-base cml-text cml-b7232ce4">{{provins[provinsIndex]}}</text>
+      <text class="textHide  cml-base cml-text cml-b7232ce4" onTap="_cmlEventProxy" data-eventtap="{{['showClick']}}" id="provins"></text>
+      <view a:if="{{pickerShow.provins}}" class=" cml-base cml-view cml-b7232ce4"><c-picker-panel show="{{pickerShow.provins}}" height="{{500}}" header-height="{{100}}" onCancel="_cmlEventProxy" data-eventcancel="{{['cancel']}}" onConfirm="_cmlEventProxy" data-eventconfirm="{{['confirm']}}" class=" cml-base cml-c-picker-panel cml-b7232ce4">
+              <view class=" cml-base cml-view cml-b7232ce4"><c-picker-item text-align="center" height="{{400}}" list="{{provins}}" default-index="{{defaultProvinsIndex}}" onSelectchange="_cmlEventProxy" data-eventselectchange="{{['provinsSelectchange']}}" class=" cml-base cml-c-picker-item cml-b7232ce4">
+              </c-picker-item></view>
+      </c-picker-panel></view>
+    </cml-buildin-row></view>
+    <view class="rowstyle  cml-base cml-view cml-b7232ce4"><cml-buildin-row justify="start" margin="{{40}}" class="rowstyle  cml-base cml-row cml-b7232ce4">
+      <text class="textStyle  cml-base cml-text cml-b7232ce4">工作单位：</text>
+      <view style="flex:3" class=" cml-base cml-view cml-b7232ce4"><cml-buildin-input placeholder="请输入你的工作单位" focus="{{isfocus}}" onInput="_cmlEventProxy" data-eventinput="{{['companyInput']}}" cStyle="padding-top: 22cpx;padding-bottom: 22cpx;font-size: 26cpx;" style="flex:3" return-key-type="next" class=" cml-base cml-input cml-b7232ce4"></cml-buildin-input></view>
+    </cml-buildin-row></view>
+  </view>
+  <view style="margin-top:100rpx" class="submitBtn  cml-base cml-view cml-b7232ce4"><cml-buildin-button style="margin-top:100rpx" type="blue" text="确定" disabled="{{submitDis}}" onOnclick="_cmlEventProxy" data-eventonclick="{{['submitForm']}}" class="submitBtn  cml-base cml-button cml-b7232ce4">  
+  </cml-buildin-button></view>
+</view>

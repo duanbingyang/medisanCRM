@@ -1,0 +1,8 @@
+{
+    "pages": [
+        "pages/index/index",
+        "pages/userInfo/userInfo",
+        "pages/complate/complate"
+    ],
+    "usingComponents": {}
+}

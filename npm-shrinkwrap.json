@@ -1,0 +1,125 @@
+{
+  "name": "medisanCRM",
+  "version": "1.0.0",
+  "lockfileVersion": 1,
+  "requires": true,
+  "dependencies": {
+    "chameleon-api": {
+      "version": "0.5.3",
+      "resolved": "https://registry.npmjs.org/chameleon-api/-/chameleon-api-0.5.3.tgz",
+      "integrity": "sha512-nmQRXO8tZR01+c0IwwMQ5gx3TrbM81/B6l9S5eZw2GrEqva1KYLuLXzx9f+eDVp1JMUaPKr/dOlCdoORJx8bvQ==",
+      "requires": {
+        "chameleon-bridge": "0.1.11",
+        "child_process": "^1.0.2",
+        "events": "^3.0.0",
+        "fetch-detector": "^1.0.1",
+        "fetch-ie8": "^1.5.0"
+      }
+    },
+    "chameleon-bridge": {
+      "version": "0.1.11",
+      "resolved": "https://registry.npmjs.org/chameleon-bridge/-/chameleon-bridge-0.1.11.tgz",
+      "integrity": "sha512-Tkkv+bDJJu0GNCdxhvgcETrmjRQfqQEQMlsWno/xU4jqcaWHkEt6StZJnduHYtEZazisvwOKt+KwXvYeoChkKQ=="
+    },
+    "chameleon-runtime": {
+      "version": "0.2.2",
+      "resolved": "https://registry.npmjs.org/chameleon-runtime/-/chameleon-runtime-0.2.2.tgz",
+      "integrity": "sha512-eTXn9jd+xHdGmCpLH2SCnlWTwZH0em+7SYtDhnDMJQOAwNw7jhbMvddX/FK/qEx4RFFgT4N3TITBzZELywrFlg==",
+      "requires": {
+        "mobx": "3.6.1"
+      }
+    },
+    "chameleon-scroll": {
+      "version": "0.0.3",
+      "resolved": "https://registry.npmjs.org/chameleon-scroll/-/chameleon-scroll-0.0.3.tgz",
+      "integrity": "sha512-9ru7moY9uU3ZouE74OmZ4pP0YHRXkin+oLvfCqKaXHRhK2Cg8kdFRaofmaLJyokb0R6S4Q7h1IQAsMcFoWkmEA=="
+    },
+    "chameleon-store": {
+      "version": "0.1.0-alpha.qq",
+      "resolved": "https://registry.npmjs.org/chameleon-store/-/chameleon-store-0.1.0-alpha.qq.tgz",
+      "integrity": "sha512-qDBu5kD4UKLA7hKIry3b5FIEL+v6QotYkj3GFRyPo7Xcz05rzmWL4O9755Eb5f5rUf+Z8GRyza4nidk3h0kv7w==",
+      "requires": {
+        "mobx": "3.6.1",
+        "vuex": "3.0.1"
+      }
+    },
+    "chameleon-ui-builtin": {
+      "version": "0.2.11-alpha.qq",
+      "resolved": "https://registry.npmjs.org/chameleon-ui-builtin/-/chameleon-ui-builtin-0.2.11-alpha.qq.tgz",
+      "integrity": "sha512-YfPm0l66GYCp/lExARdQ+rFIe8nZ2wsSw/qUXxuZ3FbNX0DymlKFu0fNG6ASFfxJ2FAm2Z1+OOoNV9EowDQruQ==",
+      "requires": {
+        "chameleon-scroll": "0.0.3"
+      }
+    },
+    "charenc": {
+      "version": "0.0.2",
+      "resolved": "https://registry.npmjs.org/charenc/-/charenc-0.0.2.tgz",
+      "integrity": "sha1-wKHS86cJLgN3S/qD8UwPxXkKhmc="
+    },
+    "child_process": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/child_process/-/child_process-1.0.2.tgz",
+      "integrity": "sha1-sffn/HPSXn/R1FWtyU4UODAYK1o="
+    },
+    "cml-ui": {
+      "version": "0.2.1",
+      "resolved": "https://registry.npmjs.org/cml-ui/-/cml-ui-0.2.1.tgz",
+      "integrity": "sha512-6siZs4ykZw2jCGdkFyxtOBkLu9imq4Z9VXN2geXiYpH3/lBM/pm2D5u1F8pjgxu9sZVHye8I4PTLpX8TSPyn5Q=="
+    },
+    "crypt": {
+      "version": "0.0.2",
+      "resolved": "https://registry.npmjs.org/crypt/-/crypt-0.0.2.tgz",
+      "integrity": "sha1-iNf/fsDfuG9xPch7u0LQRNPmxBs="
+    },
+    "events": {
+      "version": "3.0.0",
+      "resolved": "https://registry.npmjs.org/events/-/events-3.0.0.tgz",
+      "integrity": "sha512-Dc381HFWJzEOhQ+d8pkNon++bk9h6cdAoAj4iE6Q4y6xgTzySWXlKn05/TVNpjnfRqi/X0EpJEJohPjNI3zpVA=="
+    },
+    "fetch-detector": {
+      "version": "1.0.1",
+      "resolved": "https://registry.npmjs.org/fetch-detector/-/fetch-detector-1.0.1.tgz",
+      "integrity": "sha1-bLPq9zjCcnhi6GiA1hIUI+qkIIM="
+    },
+    "fetch-ie8": {
+      "version": "1.5.0",
+      "resolved": "https://registry.npmjs.org/fetch-ie8/-/fetch-ie8-1.5.0.tgz",
+      "integrity": "sha1-8RQcP5bLyJN6oxsPvBp3AiD7wVs="
+    },
+    "is-buffer": {
+      "version": "1.1.6",
+      "resolved": "https://registry.npmjs.org/is-buffer/-/is-buffer-1.1.6.tgz",
+      "integrity": "sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w=="
+    },
+    "localStorage": {
+      "version": "1.0.4",
+      "resolved": "https://registry.npmjs.org/localStorage/-/localStorage-1.0.4.tgz",
+      "integrity": "sha512-r35zrihcDiX+dqWlJSeIwS9nrF95OQTgqMFm3FB2D/+XgdmZtcutZOb7t0xXkhOEM8a9kpuu7cc28g1g36I5DQ=="
+    },
+    "md5": {
+      "version": "2.2.1",
+      "resolved": "https://registry.npmjs.org/md5/-/md5-2.2.1.tgz",
+      "integrity": "sha1-U6s41f48iJG6RlMp6iP6wFQBJvk=",
+      "requires": {
+        "charenc": "~0.0.1",
+        "crypt": "~0.0.1",
+        "is-buffer": "~1.1.1"
+      }
+    },
+    "mobx": {
+      "version": "3.6.1",
+      "resolved": "https://registry.npmjs.org/mobx/-/mobx-3.6.1.tgz",
+      "integrity": "sha1-rmOo8A4UhadA0Pka4val9o4wO+o="
+    },
+    "ua-parser-js": {
+      "version": "0.7.20",
+      "resolved": "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-0.7.20.tgz",
+      "integrity": "sha512-8OaIKfzL5cpx8eCMAhhvTlft8GYF8b2eQr6JkCyVdrgjcytyOmPCXrqXFcUnhonRpLlh5yxEZVohm6mzaowUOw=="
+    },
+    "vuex": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/vuex/-/vuex-3.0.1.tgz",
+      "integrity": "sha512-wLoqz0B7DSZtgbWL1ShIBBCjv22GV5U+vcBFox658g6V0s4wZV9P4YjCNyoHSyIBpj1f29JBoNQIqD82cR4O3w=="
+    }
+  }
+}
