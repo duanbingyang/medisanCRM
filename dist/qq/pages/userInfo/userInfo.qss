@@ -136,7 +136,7 @@ page,
 }
 
 .container {
-  background-image: url(http://192.168.31.59:8000/qq/static/img/bg2_7c5175d.png);
+  background-image: url(http://192.168.31.60:8000/qq/static/img/bg2_7c5175d.png);
   background-size: auto 100%;
   background-position: center center;
   width: 100%;

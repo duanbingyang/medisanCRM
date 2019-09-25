@@ -1,5 +1,5 @@
 var __CML__GLOBAL = require("./manifest.js");
-__CML__GLOBAL.webpackJsonp([5],{
+__CML__GLOBAL.webpackJsonp([6],{
 
 /***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/babel-loader/lib/index.js?{\"filename\":\"C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm\\\\node_modules\\\\chameleon-tool\\\\chameleon.js\"}!../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/selector.js?type=script&index=0&fileType=app&media=dev&cmlType=baidu&isInjectBaseStyle=true&check={\"enable\":true,\"enableTypes\":[]}!./src/app/app.cml":
 /***/ (function(module, exports, __webpack_require__) {
@@ -65,7 +65,7 @@ var __cml__script = __webpack_require__("../Users/Administrator/AppData/Roaming/
 /***/ "./src/router.config.json":
 /***/ (function(module, exports) {
 
-module.exports = {"mode":"history","domain":"http://www.medisan.cn","routes":[{"url":"/cml/h5/index","path":"/pages/index/index","name":"首页","mock":"index.php"},{"url":"/cml/h5/userInfo","path":"/pages/userInfo/userInfo","name":"用户信息收集"},{"url":"/cml/h5/resultPage","path":"/pages/complate/complate","name":"结果页面"}]}
+module.exports = {"mode":"history","domain":"http://www.medisan.cn","routes":[{"url":"/cml/h5/index","path":"/pages/index/index","name":"首页","mock":"index.php"},{"url":"/cml/h5/userInfo","path":"/pages/userInfo/userInfo","name":"用户信息收集"},{"url":"/cml/h5/resultPage","path":"/pages/complate/complate","name":"结果页面"},{"url":"/cml/h5/phoneBook","path":"/pages/phoneBook/phoneBook","name":"手机簿"}]}
 
 /***/ })
 

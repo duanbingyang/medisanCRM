@@ -1,0 +1,36 @@
+<view class="container  cml-base cml-view cml-20988fe4">
+  <view class=" cml-base cml-view cml-20988fe4"><cml-buildin-list bottom-offset="{{bottomOffset}}" onOnscroll="_cmlEventProxy" data-eventonscroll="{{['onScroll']}}" height="{{-1}}" class=" cml-base cml-list cml-20988fe4">
+    <block a:for="{{list}}" a:for-index="indexTop" a:for-item="item" data-idx="{{indexTop}}" class=" cml-base cml-block cml-20988fe4">
+      <view class="cell  cml-base cml-cell cml-20988fe4" a:for="{{list[indexTop]}}" a:for-index="organization" a:for-item="organizationItem">
+        <view class="boxItem  cml-base cml-view cml-20988fe4" data-idx="{{indexTop}}" onTap="_cmlEventProxy" data-eventtap="{{['tapOrgFunction']}}">
+            <text class="text  cml-base cml-text cml-20988fe4">{{organization}}</text>
+        </view>
+        <view class="panelChild  cml-base cml-view cml-20988fe4" style="{{toporgdomshowId == indexTop ? 'display:block' : 'display: none'}}">
+          <block a:for="{{list[indexTop][organization]}}" a:for-index="index" a:for-item="item" data-idx="{{index}}" class=" cml-base cml-block cml-20988fe4">
+            <view class="cell  cml-base cml-cell cml-20988fe4" a:for="{{list[indexTop][organization][index]}}" a:for-index="department" a:for-item="departmentItem">
+              <view class="panelItem  cml-base cml-view cml-20988fe4" data-idx="{{index}}" onTap="_cmlEventProxy" data-eventtap="{{['tapFunction']}}">
+                <text class="text  cml-base cml-text cml-20988fe4">{{department}}</text>
+              </view>
+              <view class="panelChild  cml-base cml-view cml-20988fe4" animation="{{(animationData[index]).actions}}" onTransitionend="_cmlInline" data-eventtransitionend="{{['_animationCb','animationData[index]','$event']}}" style="{{topdomshowId == index ? 'display:block' : 'display: none'}}">
+                <block a:for="{{list[indexTop][organization][index][department]}}" a:for-index="i" a:for-item="childItem" class=" cml-base cml-block cml-20988fe4">
+                  <view class="cell  cml-base cml-cell cml-20988fe4" a:for="{{list[indexTop][organization][index][department][i]}}" a:for-index="name" a:for-item="nameItem">
+                    <view class="panelChildItem  cml-base cml-view cml-20988fe4" data-idx="{{i}}" onTap="_cmlEventProxy" data-eventtap="{{['tapChildFunction']}}">
+                      <text class="text  cml-base cml-text cml-20988fe4">{{name}}</text>
+                    </view>
+                    <view class="detail  cml-base cml-view cml-20988fe4" animation="{{(animationChildData[i]).actions}}" onTransitionend="_cmlInline" data-eventtransitionend="{{['_animationCb','animationChildData[i]','$event']}}" style="{{topchilddomshowId == i ? 'display:block' : 'display: none'}}">
+                      <view class="cell  cml-base cml-cell cml-20988fe4" a:for="{{list[indexTop][organization][index][department][i][name]}}" a:for-index="msg" a:for-item="msgItem" data-idx="{{msg}}">
+                        <view class="detailItem  cml-base cml-view cml-20988fe4">
+                          <text class="text  cml-base cml-text cml-20988fe4">{{msg}}: {{msgItem}}</text>
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </block>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+  </cml-buildin-list></view>
+</view>

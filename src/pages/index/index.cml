@@ -1,7 +1,7 @@
 <template>
   <page title="chameleon">
       <scroller height="{{-1}}">
-        <view class="scroller-wrap">
+        <view class="scroller-wrap" c-animation="{{animationData[0]}}" c-bind:click="handleClick">
           <demo-com title="{{title}}" image-src="{{chameleonSrc}}"></demo-com>
         </view>
       </scroller>
@@ -9,11 +9,20 @@
 </template>
 
 <script>
-
+import { createAnimation } from "chameleon-api";
+const animation = createAnimation();
 class Index  {
   data = {
     title: "chameleon",
-    chameleonSrc: require('../../assets/images/chameleon.png')
+    chameleonSrc: require('../../assets/images/chameleon.png'),
+    animationData: []
+  }
+  methods = {
+    handleClick() {
+      this.animationData[0] = animation
+        .height(100).step({duration: 1000})
+        .export();
+    }
   }
 }
 
@@ -29,6 +38,7 @@ export default new Index();
 }
 
 </style>
+
 <script cml-type="json">
 {
   "base": {

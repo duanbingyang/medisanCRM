@@ -139,6 +139,7 @@
 import cml from 'chameleon-api'
 import md5 from 'md5'
 import localStorage from 'localStorage'
+import WeValidator from 'we-validator'
 
 class UserInfo   {
 
@@ -159,7 +160,8 @@ class UserInfo   {
       address_prov: '北京市',
       phone: '' ,
       sex: '男',
-      company: ''
+      company: '',
+      error: ''
     },
     provins: [
       "北京市",
@@ -233,9 +235,17 @@ class UserInfo   {
       console.log(this.formData)
 
       this.submitDis = true;
-      if(this.userInputCode === this.code){
+      
+      if(this.validator(this.formData)){
+        console.log('验证成功')
+      }else{
+        console.log('验证失败')
+        console.log(this.formData.error)
+        this.submitDis = false;
+        return false;
+      }
         cml.post({
-          url: 'http://192.168.31.59:3000/api/addUser_crm',
+          url: 'http://172.16.101.65:3000/api/addUser_crm',
           data: this.formData
         }).then(res => {
           cml.showToast({
@@ -243,21 +253,6 @@ class UserInfo   {
             duration: 2000
           })
           localStorage.setItem('userSign', _this.code)
-        }, err => {
-          cml.showToast({
-            message: JSON.stringify(err),
-            duration: 2000
-          })
-          console.log(err)
-        })
-      }else{
-        cml.showToast({
-          message: '验证码输入有误',
-          duration: 2000
-        })
-        this.submitDis = false;
-      }
-      
           cml.navigateTo({
             path: '/pages/complate/complate',
             query: {
@@ -266,6 +261,70 @@ class UserInfo   {
               subMessage: ''
             }
           })
+        }, err => {
+          cml.showToast({
+            message: JSON.stringify(err),
+            duration: 2000
+          })
+          this.submitDis = false;
+          console.log(err)
+        })
+      if(this.userInputCode === this.code){
+        
+      }else{
+        cml.showToast({
+          message: '验证码输入有误',
+          duration: 2000
+        })
+        this.submitDis = false;
+      }
+      
+    },
+    validator(data){
+      const _this = this;
+      const validatorInstance = new WeValidator({
+            multiCheck: true,
+            onMessage: function(data){
+              _this.formData.error = data
+            },
+            rules: {
+                username: {
+                    required: true
+                },
+                sex: {
+                    required: true
+                },
+                company: {
+                    required: true
+                },
+                phone: {
+                    required: true,
+                    mobile: true
+                },
+                address_prov: {
+                    required: true
+                }
+            },
+            messages: {
+                username: {
+                    required: '请输入用户名'
+                },
+                sex: {
+                    required: '请输入密码'
+                },
+                company: {
+                    required: '请输入工作单位'
+                },
+                phone: {
+                    required: '请输入手机号',
+                    mobile: '手机号格式不正确'
+                },
+                address_prov: {
+                    required: '请输入所在地'
+                }
+            }
+        });
+        return validatorInstance.checkData(data)
     },
 
     provinsSelectchange(e) {
@@ -300,11 +359,20 @@ class UserInfo   {
       const sdkappid = 1400245773;
       const random = Math.floor(Math.random()*10+1);
       let wait = 10;
+      if((this.formData.phone).toString().length != 11 || !/^1/.test(this.formData.phone.toString())){
+        cml.showToast({
+          message: '手机号错误，请填写正确的手机号',
+          duration: 2000
+        })
+        return false;
+      }
+
+
       // 倒计时，过程中按钮置灰
       this.time(wait)
       this.sendCodeDis = true;
       cml.post({
-        url: 'http://192.168.31.59:3000/api/vCode',
+        url: 'http://172.16.101.65:3000/api/vCode',
         data: {
           mobile: this.formData.phone,
           nationcode: "86",
@@ -323,7 +391,6 @@ class UserInfo   {
           })
         }
         this.code = res.currentAuthority.code;
-        console.log(res.currentAuthority.code, '___________________')
       }, err => {
         cml.showToast({
           message: JSON.stringify(err),
@@ -363,7 +430,6 @@ class UserInfo   {
   }
 
   beforeCreate() {
-    console.log(12345)
     if(localStorage.getItem('userSign')){
       cml.navigateTo({
         path: '/pages/complate/complate',

@@ -1,5 +1,5 @@
 var __CML__GLOBAL = require("../../../../manifest.js");
-__CML__GLOBAL.webpackJsonp([29],{
+__CML__GLOBAL.webpackJsonp([30],{
 
 /***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/babel-loader/lib/index.js?{\"filename\":\"C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm\\\\node_modules\\\\chameleon-tool\\\\chameleon.js\"}!../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/selector.js?type=script&index=0&fileType=component&media=dev&cmlType=wx&isInjectBaseStyle=true&check={\"enable\":true,\"enableTypes\":[]}!./node_modules/chameleon-ui-builtin/components/carousel/carousel.wx.cml":
 /***/ (function(module, exports, __webpack_require__) {

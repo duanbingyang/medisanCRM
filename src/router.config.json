@@ -17,6 +17,11 @@
       "url": "/cml/h5/resultPage",
       "path": "/pages/complate/complate",
       "name": "结果页面"
+    },
+    {
+      "url": "/cml/h5/phoneBook",
+      "path": "/pages/phoneBook/phoneBook",
+      "name": "手机簿"
     }
   ]
 }

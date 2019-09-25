@@ -1,5 +1,5 @@
 var __CML__GLOBAL = require("../../manifest.js");
-__CML__GLOBAL.webpackJsonp([9],{
+__CML__GLOBAL.webpackJsonp([4],{
 
 /***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/babel-loader/lib/index.js?{\"filename\":\"C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm\\\\node_modules\\\\chameleon-tool\\\\chameleon.js\"}!../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/selector.js?type=script&index=0&fileType=page&media=dev&cmlType=alipay&isInjectBaseStyle=true&check={\"enable\":true,\"enableTypes\":[]}!./src/pages/index/index.cml":
 /***/ (function(module, exports, __webpack_require__) {
@@ -7,6 +7,10 @@ __CML__GLOBAL.webpackJsonp([9],{
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _index = __webpack_require__("./node_modules/chameleon-api/src/interfaces/createAnimation/index.js");
+
+var _index2 = _interopRequireDefault(_index);
 
 var _chameleonRuntime = __webpack_require__("./node_modules/chameleon-runtime/index.js");
 
@@ -16,12 +20,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var animation = (0, _index2.default)();
+
 var Index = function Index() {
   _classCallCheck(this, Index);
 
   this.data = {
     title: "chameleon",
-    chameleonSrc: __webpack_require__("./src/assets/images/chameleon.png")
+    chameleonSrc: __webpack_require__("./src/assets/images/chameleon.png"),
+    animationData: []
+  };
+  this.methods = {
+    handleClick: function handleClick() {
+      this.animationData[0] = animation.height(100).step({ duration: 1000 }).export();
+    }
   };
 };
 
