@@ -134,6 +134,20 @@ page,
   display: none;
 }
 
+page {
+  height: 100%;
+
+  display: -webkit-box;
+
+  display: -webkit-flex;
+
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+}
+
 .container {
   background-image: url(http://192.168.31.60:8000/baidu/static/img/bg2_7c5175d.png);
   background-size: auto 100%;

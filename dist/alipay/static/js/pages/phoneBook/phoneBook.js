@@ -44,7 +44,7 @@ var List = function List() {
     lists: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     listsItem: ['A', 'B', 'C'],
     list: [{
-      "哈尔滨三联药业股份有限公司集团总部内线": [{
+      "哈三联集团总部内线": [{
         "高层": [{
           "秦剑飞": {
             "职务": "董事长兼总裁",
@@ -558,7 +558,7 @@ var List = function List() {
         }]
       }, {
         "合作部": [{
-          "孙文涛": {
+          "王凯": {
             "电话号码": 61600
           }
         }]
@@ -3024,22 +3024,37 @@ var List = function List() {
         }
       }, 800);
     },
-    onScroll: function onScroll(e) {},
+    onScroll: function onScroll(e) {
+      console.log(e);
+    },
     tapOrgFunction: function tapOrgFunction(e) {
-      console.log(e.currentTarget.dataset.idx, '===============');
+      console.log(e);
+      console.log(e.clientY);
       var index = e.currentTarget.dataset.idx;
-      this.toporgdomshowId = index;
+      if (this.toporgdomshowId == index) {
+        this.toporgdomshowId = -1;
+      } else {
+        this.toporgdomshowId = index;
+      }
+      this.topdomshowId = -1;
+      this.topchilddomshowId = -1;
     },
     tapFunction: function tapFunction(e) {
-      console.log(e.currentTarget.dataset.idx, '===============');
       var index = e.currentTarget.dataset.idx;
-      this.topdomshowId = index;
+      if (this.topdomshowId == index) {
+        this.topdomshowId = -1;
+      } else {
+        this.topdomshowId = index;
+      }
       this.topchilddomshowId = -1;
     },
     tapChildFunction: function tapChildFunction(e) {
-      console.log(e.currentTarget.dataset.idx, '===============');
       var index = e.currentTarget.dataset.idx;
-      this.topchilddomshowId = index;
+      if (this.topchilddomshowId == index) {
+        this.topchilddomshowId = -1;
+      } else {
+        this.topchilddomshowId = index;
+      }
     }
   };
 };

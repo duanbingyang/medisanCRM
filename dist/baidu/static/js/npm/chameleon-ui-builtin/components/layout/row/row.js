@@ -16,6 +16,34 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-ui-builtin/components/layout/row/row.interface";
+var __CML_ERROR__ = function throwError(content) {
+  throw new Error("\u6587\u4EF6\u4F4D\u7F6E: " + __INTERFACE__FILEPATH + "\n            " + content);
+};
+
+var __enableTypes__ = [];
+var __INTERFAE__DEFINES__ = {
+  "types": {},
+  "interfaces": {
+    "RowInterface": {
+      "justify": "String",
+      "align": "String",
+      "height": "Number",
+      "wrap": "Boolean",
+      "margin": "Number"
+    }
+  },
+  "classes": {}
+};
+var __CML__DEFINES__ = {
+  "types": {},
+  "interfaces": {},
+  "classes": {
+    "CRow": ["RowInterface"]
+  }
+};
+var __CML__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/runtime/check.js");
+
 var CRow = function CRow() {
   _classCallCheck(this, CRow);
 
@@ -45,25 +73,29 @@ var CRow = function CRow() {
   };
   this.computed = {
     rowClass: function rowClass() {
-      return 'flex-row-' + this.justify + '-' + this.align;
+      return "flex-row-" + this.justify + "-" + this.align;
     },
     rowStyle: function rowStyle() {
       var style = '';
+
       if (this.height) {
-        style += 'height:' + this.height + 'cpx;';
+        style += "height:" + this.height + "cpx;";
       }
+
       if (this.wrap) {
-        style += 'flex-wrap:wrap;';
+        style += "flex-wrap:wrap;";
       }
+
       if (this.margin) {
-        style += 'margin:' + this.margin / 2 + 'cpx 0;';
+        style += "margin:" + this.margin / 2 + "cpx 0;";
       }
+
       return style;
     }
   };
 };
 
-exports.default = new CRow();
+exports.default = __CML__WRAPPER__(new CRow(), __CML_ERROR__, __enableTypes__, __INTERFAE__DEFINES__, __CML__DEFINES__);
 
 
 exports.default = _chameleonRuntime2.default.createComponent(exports.default).getOptions();

@@ -1,9 +1,9 @@
 <template>
   <view class="container">
-    <list
+    <view class="titleFont">哈三联通讯录9102</view>
+    <view
       bottom-offset="{{bottomOffset}}"
-      c-bind:onscroll="onScroll"
-      height="{{-1}}"
+      class="phoneList"
     >
       <block
         c-for="{{list}}"
@@ -11,8 +11,8 @@
         c-for-item="item"
         data-idx="{{indexTop}}"
       >
-        <cell
-          class="cell"
+        <view
+          class="cell boxList"
           c-for="{{list[indexTop]}}"
           c-for-index="organization"
           c-for-item="organizationItem"
@@ -20,8 +20,9 @@
           <view 
             class="boxItem"
             data-idx="{{indexTop}}"
-            c-bind:tap="tapOrgFunction">
-              <text class="text">{{organization}}</text>
+            c-bind:click="tapOrgFunction"
+          >
+              <text class="text {{toporgdomshowId == indexTop ? 'bottom' : 'right'}}">{{organization}}</text>
           </view>
           <view 
             class="panelChild" 
@@ -33,7 +34,7 @@
               c-for-item="item"
               data-idx="{{index}}"
             >
-              <cell
+              <view
                 class="cell"
                 c-for="{{list[indexTop][organization][index]}}"
                 c-for-index="department"
@@ -42,9 +43,9 @@
                 <view 
                   class="panelItem"
                   data-idx="{{index}}"
-                  c-bind:tap="tapFunction"
+                  c-bind:click="tapFunction"
                 >
-                  <text class="text">{{department}}</text>
+                  <text class="text {{topdomshowId == index ? 'bottom' : 'right'}}">{{department}}</text>
                 </view>
                 <view 
                   class="panelChild" 
@@ -56,7 +57,7 @@
                       c-for-index="i"
                       c-for-item="childItem"
                   >
-                    <cell
+                    <view
                       class="cell"
                       c-for="{{list[indexTop][organization][index][department][i]}}"
                       c-for-index="name"
@@ -65,15 +66,15 @@
                       <view
                         class="panelChildItem"
                         data-idx="{{i}}"
-                        c-bind:tap="tapChildFunction"
+                        c-bind:click="tapChildFunction"
                       >
-                        <text class="text">{{name}}</text>
+                        <text class="text {{topchilddomshowId == i ? 'bottom' : 'right'}}">{{name}}</text>
                       </view>
                       <view class="detail"
                       c-animation="{{animationChildData[i]}}"
                       style="{{topchilddomshowId == i ? 'display:block' : 'display: none'}}"
                       >
-                        <cell
+                        <view
                           class="cell"
                           c-for="{{list[indexTop][organization][index][department][i][name]}}"
                           c-for-index="msg"
@@ -83,17 +84,17 @@
                           <view class="detailItem">
                             <text class="text">{{msg}}: {{msgItem}}</text>
                           </view>
-                        </cell>
+                        </view>
                       </view>
-                    </cell>
+                    </view>
                   </block>
                 </view>
-              </cell>
+              </view>
             </block>
           </view>
-        </cell>
+        </view>
       </block>
-    </list>
+    </view>
   </view>
 </template>
 
@@ -118,7 +119,7 @@ class List {
     lists: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     listsItem: ['A', 'B', 'C'],
     list: [{
-      "哈尔滨三联药业股份有限公司集团总部内线": [{
+      "哈三联集团总部内线": [{
         "高层": [{
           "秦剑飞": {
             "职务": "董事长兼总裁",
@@ -635,7 +636,7 @@ class List {
         }]
       },{
         "合作部": [{
-          "孙文涛": {
+          "王凯": {
             "电话号码": 61600,
           }
         }]
@@ -3255,22 +3256,36 @@ class List {
       }, 800)
     },
     onScroll(e) {
+      console.log(e)
     },
     tapOrgFunction(e){
-      console.log(e.currentTarget.dataset.idx,'===============')
+      console.log(e)
+      console.log(e.clientY)
       const index = e.currentTarget.dataset.idx;
-      this.toporgdomshowId = index
+      if(this.toporgdomshowId == index){
+        this.toporgdomshowId = -1
+      }else{
+        this.toporgdomshowId = index
+      }
+      this.topdomshowId = -1
+      this.topchilddomshowId = -1
     },
     tapFunction(e){
-      console.log(e.currentTarget.dataset.idx,'===============')
       const index = e.currentTarget.dataset.idx;
-      this.topdomshowId = index
+      if(this.topdomshowId == index){
+        this.topdomshowId = -1
+      }else{
+        this.topdomshowId = index
+      }
       this.topchilddomshowId = -1
     },
     tapChildFunction(e){
-      console.log(e.currentTarget.dataset.idx,'===============')
       const index = e.currentTarget.dataset.idx;
+      if(this.topchilddomshowId == index){
+        this.topchilddomshowId = -1
+      }else{
       this.topchilddomshowId = index
+      }
     }
   }
 }
@@ -3279,12 +3294,173 @@ export default  new List();
 
 </script>
 <style scoped>
-.container {
-  position: absolute;
-  top: 88cpx;
-  left: 0;
-  right: 0;
-  bottom: 0;
+@media cml-type (web) {
+  @media screen and (min-width: 800px) {
+    .container {
+      top:20px;
+      position: inherit;
+      margin: 0 auto;
+    }
+    .container .titleFont{
+      font-size: 44px;
+      margin-top: 10px;
+    }
+    .container .phoneList{
+      margin: 20px 24%;
+    }
+    .container .boxItem{
+      font-size: 28px;
+      padding: 20px;
+    }
+    .container .boxItem .text{
+      font-size: 28px;
+    }
+    .container .panelItem {
+      padding: 6px;
+    }
+    .container .panelItem .text {
+      font-size: 26px;
+    }
+
+    .container .panelChildItem{
+      padding: 6px 0;
+    }
+
+    .container .panelChildItem .text{
+      font-size: 24px;
+    }
+    .container .detailItem{
+      padding: 12px
+    }
+
+    .container .detailItem .text{
+      font-size: 20px;
+    }
+    .container .cml-base{
+      font-size: inherit;
+    }
+    .container .detail{
+      margin: 20px;
+    }
+    .container .right {
+      background-size: auto 20px;
+      margin-right: 8px;
+    }
+    .container .bottom {
+      background-size: 20px auto;
+    }
+
+  }
+  @media screen and (max-width: 800px) {
+    .container{
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-width: auto;
+      top: 28cpx;
+      margin-top: 20cpx;
+    }
+    .container .titleFont{
+      font-size: 42cpx;
+    }
+    .boxItem{
+      font-size: 38cpx;
+      padding: 20cpx;
+    }
+    .panelItem {
+      padding: 20cpx;
+    }
+    .panelItem .text {
+      font-size: 38cpx;
+    }
+    .panelChildItem{
+      padding: 12cpx 0;
+    }
+
+    .panelChildItem .text{
+      font-size: 36cpx;
+    }
+
+    .detailItem{
+      padding: 12cpx
+    }
+
+    .detailItem .text{
+      font-size: 32cpx;
+    }
+      
+    .right {
+      background-size: auto 30cpx;
+      margin-right: 8cpx;
+    }
+    .detail{
+      margin: 35cpx;
+    }
+    .bottom {
+      background-size: 30cpx auto;
+    }
+  }
+  
+}
+
+@media cml-type (wx) {
+  .container{
+    max-width: auto;
+    top: 88cpx;
+  }
+  .container .titleFont{
+    font-size: 42cpx;
+  }
+  .boxItem{
+    font-size: 38cpx;
+    padding: 20cpx;
+  }
+  .panelItem {
+    padding: 20cpx;
+  }
+  .panelItem .text {
+    font-size: 38cpx;
+  }
+  .panelChildItem{
+    padding: 12cpx 0;
+  }
+
+  .panelChildItem .text{
+    font-size: 36cpx;
+  }
+
+  .detailItem{
+    padding: 12cpx
+  }
+
+  .detailItem .text{
+    font-size: 32cpx;
+  }
+    
+  .right {
+    background-size: auto 30cpx;
+    margin-right: 8cpx;
+  }
+  .detail{
+    margin: 35cpx;
+  }
+  .bottom {
+    background-size: 30cpx auto;
+  }
+}
+
+
+.titleFont{
+  color: #D60011;
+  text-align: center;
+}
+.phoneList{
+  margin: 20cpx;
+  border: 1px solid #EEE;
+}
+.boxList{
+  border-bottom: 1px solid #EEE;
 }
 .panel {
   display: flex;
@@ -3300,14 +3476,11 @@ export default  new List();
   border-color: rgb(162, 217, 192);
   background-color: rgba(162, 217, 192, 0.2);
 }
-.panelItem .text {
-  font-size: 48cpx;
-  color: #41B883;
+.panelItem {
+  border-top: 1px solid #F6F6F6;
 }
 .panelChild {
   display: flex;
-  margin-top: 35cpx;
-  margin-bottom: 35cpx;
   margin-left: 35cpx;
   margin-right: 35cpx;
   flex-direction: column;
@@ -3317,20 +3490,27 @@ export default  new List();
   border-color: rgb(162, 217, 192);
   background-color: rgba(162, 217, 192, 0.2); */
 }
-.panelChildItem .text{
-  font-size: 44cpx;
+.panelChildItem{
+  padding: 12cpx 0;
 }
-.detail{
-  margin: 35cpx;
+.panelChildItem .text{
 }
 .detailItem .text{
-  font-size: 32cpx;
 }
 .text {
-  font-size: 38cpx;
+  color: #666;
+}
+.right {
+  background-image:url('../../assets/images/sider_right.png');
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+.bottom {
+  background-image:url('../../assets/images/greensider_bottom.png');
+  background-position: center right;
+  background-repeat: no-repeat;
   color: #41B883;
 }
-
 </style>
 
 <script cml-type="json">

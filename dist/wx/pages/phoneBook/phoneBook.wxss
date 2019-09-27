@@ -135,12 +135,83 @@ page,
   display: none;
 }
 
+page {
+  height: 100%;
+
+  display: -webkit-box;
+
+  display: -webkit-flex;
+
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+          flex-direction: column;
+}
+
 .container {
-  position: absolute;
+  max-width: auto;
   top: 88rpx;
-  left: 0;
-  right: 0;
-  bottom: 0;
+}
+
+.container .titleFont {
+  font-size: 42rpx;
+}
+
+.boxItem {
+  font-size: 38rpx;
+  padding: 20rpx;
+}
+
+.panelItem {
+  padding: 20rpx;
+}
+
+.panelItem .text {
+  font-size: 38rpx;
+}
+
+.panelChildItem {
+  padding: 12rpx 0;
+}
+
+.panelChildItem .text {
+  font-size: 36rpx;
+}
+
+.detailItem {
+  padding: 12rpx;
+}
+
+.detailItem .text {
+  font-size: 32rpx;
+}
+
+.right {
+  background-size: auto 30rpx;
+  margin-right: 8rpx;
+}
+
+.detail {
+  margin: 35rpx;
+}
+
+.bottom {
+  background-size: 30rpx auto;
+}
+
+.titleFont {
+  color: #D60011;
+  text-align: center;
+}
+
+.phoneList {
+  margin: 20rpx;
+  border: 1px solid #EEE;
+}
+
+.boxList {
+  border-bottom: 1px solid #EEE;
 }
 
 .panel {
@@ -165,17 +236,14 @@ page,
   background-color: rgba(162, 217, 192, 0.2);
 }
 
-.panelItem .text {
-  font-size: 48rpx;
-  color: #41B883;
+.panelItem {
+  border-top: 1px solid #F6F6F6;
 }
 
 .panelChild {
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
-  margin-top: 35rpx;
-  margin-bottom: 35rpx;
   margin-left: 35rpx;
   margin-right: 35rpx;
   -webkit-box-orient: vertical;
@@ -191,19 +259,23 @@ page,
   background-color: rgba(162, 217, 192, 0.2); */
 }
 
-.panelChildItem .text {
-  font-size: 44rpx;
-}
-
-.detail {
-  margin: 35rpx;
-}
-
-.detailItem .text {
-  font-size: 32rpx;
+.panelChildItem {
+  padding: 12rpx 0;
 }
 
 .text {
-  font-size: 38rpx;
+  color: #666;
+}
+
+.right {
+  background-image: url(http://192.168.31.60:8000/wx/static/img/sider_right_a09d99f.png);
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+
+.bottom {
+  background-image: url(http://192.168.31.60:8000/wx/static/img/greensider_bottom_65c6e3f.png);
+  background-position: center right;
+  background-repeat: no-repeat;
   color: #41B883;
 }

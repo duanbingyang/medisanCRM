@@ -18,6 +18,49 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-ui-builtin/components/radio/radio.interface";
+var __CML_ERROR__ = function throwError(content) {
+  throw new Error("\u6587\u4EF6\u4F4D\u7F6E: " + __INTERFACE__FILEPATH + "\n            " + content);
+};
+
+var __enableTypes__ = [];
+var __INTERFAE__DEFINES__ = {
+  "types": {
+    "EventDetail": {
+      "value": "Boolean",
+      "index": "Number"
+    }
+  },
+  "interfaces": {
+    "RadioInterface": {
+      "cstyle": "String",
+      "checked": "Boolean",
+      "label": "String",
+      "disabled": "Boolean",
+      "position": "String",
+      "groupIndex": "Number",
+      "color": "String",
+      "change": {
+        "input": ["EventDetail"],
+        "output": "Undefined"
+      },
+      "changeevent": {
+        "input": ["EventDetail"],
+        "output": "Undefined"
+      }
+    }
+  },
+  "classes": {}
+};
+var __CML__DEFINES__ = {
+  "types": {},
+  "interfaces": {},
+  "classes": {
+    "Radio": ["RadioInterface"]
+  }
+};
+var __CML__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/runtime/check.js");
+
 var Radio = function () {
   function Radio() {
     _classCallCheck(this, Radio);
@@ -58,22 +101,26 @@ var Radio = function () {
     this.computed = {
       radioStyle: function radioStyle() {
         var style = '';
+
         if (this.disabled) {
           style += 'opacity:0.5;';
         }
+
         if (this.position == 'right') {
           style += 'position:absolute;right:0;margin-right:45cpx;';
         } else {
           style += 'margin-right:13cpx;';
         }
+
         return style;
       },
       radioInnerStyle: function radioInnerStyle() {
         var style = '';
+
         if (this.innerChecked) {
-          style += 'border:10cpx solid ' + this.color + ';';
+          style += "border:10cpx solid " + this.color + ";";
         } else {
-          style += 'border:1px solid #ccc;';
+          style += "border:1px solid #ccc;";
         }
 
         return style;
@@ -82,6 +129,7 @@ var Radio = function () {
         if (this.disabled) {
           return this.innerChecked ? 'cml-radio-selected-disabled' : 'cml-radio-unselect-disabled';
         }
+
         return this.innerChecked ? 'cml-radio-selected' : 'cml-radio-unselect';
       },
       computedCstyle: function computedCstyle() {
@@ -102,7 +150,6 @@ var Radio = function () {
           value: this.innerChecked,
           index: this.groupIndex
         };
-
         this.$cmlEmit('change', value);
         this.$cmlEmit('changeevent', value);
       }
@@ -110,7 +157,7 @@ var Radio = function () {
   }
 
   _createClass(Radio, [{
-    key: 'mounted',
+    key: "mounted",
     value: function mounted() {
       this.innerChecked = this.checked;
     }
@@ -119,7 +166,7 @@ var Radio = function () {
   return Radio;
 }();
 
-exports.default = new Radio();
+exports.default = __CML__WRAPPER__(new Radio(), __CML_ERROR__, __enableTypes__, __INTERFAE__DEFINES__, __CML__DEFINES__);
 
 
 exports.default = _chameleonRuntime2.default.createComponent(exports.default).getOptions();

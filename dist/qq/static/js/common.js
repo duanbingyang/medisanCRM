@@ -113,42 +113,6 @@ _.getStyleKeyValue = function (declaration) {
 
 /***/ }),
 
-/***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js":
-/***/ (function(module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.copyProtoProperty = copyProtoProperty;
-/* eslint-disable */
-/**
- * 原型上的方法放到对象上
- * @param  {Object} obj   待添加属性对象
- * @param  {Object} proto 差异方法
- * @return {Object}       修改后值
- */
-function copyProtoProperty() {
-  var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-  var EXPORT_OBJ = obj;
-  var EXPORT_PROTO = EXPORT_OBJ.__proto__;
-
-  if (EXPORT_PROTO.constructor !== Object) {
-    Object.getOwnPropertyNames(EXPORT_PROTO).forEach(function (key) {
-      if (!/constructor|prototype|length/ig.test(key)) {
-        // 原型上有自身没有的属性 放到自身上
-        if (!EXPORT_OBJ.hasOwnProperty(key)) {
-          EXPORT_OBJ[key] = EXPORT_PROTO[key];
-        }
-      }
-    });
-  }
-
-  return EXPORT_OBJ;
-}
-
-/***/ }),
-
 /***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-mixins/common.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -222,6 +186,41 @@ _.isReactive = function (value) {
 
 /***/ }),
 
+/***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-mixins/miniapp-utils/px2cpx.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+var _ = module.exports = {};
+var platform = "qq";
+var viewportWidth = void 0;
+_.px2cpx = function (px) {
+  function getViewportSize() {
+    if (platform === 'wx') {
+      var _wx$getSystemInfoSync = wx.getSystemInfoSync(),
+          windowWidth = _wx$getSystemInfoSync.windowWidth;
+
+      return windowWidth;
+    }
+    if (platform === 'baidu') {
+      var _swan$getSystemInfoSy = swan.getSystemInfoSync(),
+          _windowWidth = _swan$getSystemInfoSy.windowWidth;
+
+      return _windowWidth;
+    }
+    if (platform === 'alipay') {
+      var _my$getSystemInfoSync = my.getSystemInfoSync(),
+          _windowWidth2 = _my$getSystemInfoSync.windowWidth;
+
+      return _windowWidth2;
+    }
+  }
+
+  viewportWidth = viewportWidth || getViewportSize();
+  var cpx = +(750 / viewportWidth * px).toFixed(3);
+  return cpx;
+};
+
+/***/ }),
+
 /***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-mixins/utils.js":
 /***/ (function(module, exports) {
 
@@ -276,6 +275,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 var common = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-mixins/common.js");
 var wxStyleHandle = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-css-loader/proxy/proxyMiniapp.js");
 var utils = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-mixins/utils.js");
+
+var _require = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-mixins/miniapp-utils/px2cpx.js"),
+    px2cpx = _require.px2cpx;
+
 var deepClone = function deepClone(obj) {
   if (obj.toString().slice(8, -1) !== "Object") {
     return obj;
@@ -384,6 +387,36 @@ function getNewEvent(e) {
           dataset: e[key].dataset
         };
         newEvent[key] = newTarget;
+      } else if (~['touches', 'changedTouches'].indexOf(key)) {
+        if (key == 'touches') {
+          var touches = e[key];
+          newEvent.touches = [];
+          for (var i = 0; i < touches.length; i++) {
+            var touch = touches[i];
+            var ret = {};
+            ret.identifier = touch.identifier;
+            ret.pageX = px2cpx(parseInt(touch.pageX, 10));
+            ret.pageY = px2cpx(parseInt(touch.pageY, 10));
+            ret.clientX = px2cpx(parseInt(touch.clientX, 10));
+            ret.clientY = px2cpx(parseInt(touch.clientY, 10));
+            newEvent.touches.push(ret);
+          }
+        }
+
+        if (key == 'changedTouches') {
+          var changedTouches = e[key];
+          newEvent.changedTouches = [];
+          for (var _i = 0; _i < changedTouches.length; _i++) {
+            var _touch = changedTouches[_i];
+            var _ret = {};
+            _ret.identifier = _touch.identifier;
+            _ret.pageX = px2cpx(parseInt(_touch.pageX, 10));
+            _ret.pageY = px2cpx(parseInt(_touch.pageY, 10));
+            _ret.clientX = px2cpx(parseInt(_touch.clientX, 10));
+            _ret.clientY = px2cpx(parseInt(_touch.clientY, 10));
+            newEvent.changedTouches.push(_ret);
+          }
+        }
       } else {
         newEvent[key] = e[key];
       }
@@ -410,6 +443,355 @@ commonMixins.merge(_.mixins.methods, _defineProperty({}, _.eventEmitName, functi
     this.$__checkCmlEmit__(eventKey, detail);
   }
 }));
+
+/***/ }),
+
+/***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js":
+/***/ (function(module, exports) {
+
+/**
+* 对象包裹器
+*运行时的错误信息，根据端传入不同的方法，
+* @param  {Object} obj 需要处理的对象
+* @return {Object}     对象
+*/
+/* istanbul ignore next */
+module.exports = function (obj, __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__) {
+  var className = obj.constructor.name;
+  /* eslint-disable no-undef */
+  var defines = __CHECK__DEFINES__;
+  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
+  /* eslint-disable no-undef */
+  var types = defines.types;
+  var interfaceNames = defines.classes[className];
+  var methods = {};
+
+  interfaceNames && interfaceNames.forEach(function (interfaceName) {
+    var keys = Object.keys(defines.interfaces);
+    keys.forEach(function (key) {
+      Object.assign(methods, defines.interfaces[key]);
+    });
+  });
+
+  /**
+  * 获取类型
+  *
+  * @param  {*}      value 值
+  * @return {string}       类型
+  */
+  var getType = function getType(value) {
+    if (value instanceof Promise) {
+      return "Promise";
+    }
+    var type = Object.prototype.toString.call(value);
+    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
+      return L.toUpperCase();
+    });
+  };
+
+  /**
+  * 校验类型  两个loader共用代码
+  *
+  * @param  {*}      value 实际传入的值
+  * @param  {string} type  静态分析时候得到的值得类型
+  * @param  {array[string]} errList 校验错误信息  类型
+  * @return {bool}         校验结果
+  */
+
+  /* eslint complexity:[2,39] */
+  var checkType = function checkType(value, originType) {
+    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+
+    var isNullableReg = /_cml_nullable_lmc_/g;
+    var type = originType.replace('_cml_nullable_lmc_', '');
+    type === "Void" && (type = "Undefined");
+    var currentType = getType(value);
+    var canUseNullable = enableTypes.includes("Nullable");
+    var canUseObject = enableTypes.includes("Object");
+    if (currentType == 'Null') {
+      if (type == "Null") {
+        // 如果定义的参数的值就是 Null，那么校验通过
+        errList = [];
+      } else {
+        // 那么判断是否是可选参数的情况
+        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E');
+      }
+      return errList;
+    }
+    if (currentType == 'Undefined') {
+      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
+      if (type == "Undefined") {
+        errList = [];
+      } else {
+        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+    if (currentType == 'String') {
+      if (type == 'String') {
+        errList = [];
+      } else {
+        errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+    if (currentType == 'Boolean') {
+      if (type == 'Boolean') {
+        errList = [];
+      } else {
+        errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+    if (currentType == 'Number') {
+      if (type == 'Number') {
+        errList = [];
+      } else {
+        errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+    if (currentType == 'Object') {
+      if (type == 'Object') {
+        !canUseObject ? errList.push('\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B' + type + '\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B') : errList = [];
+      } else if (type == 'CMLObject') {
+        errList = [];
+      } else {
+        // 这种情况的对象就是自定义的对象；
+        if (types[type]) {
+          var _keys = Object.keys(types[type]);
+          // todo 这里是同样的问题，可能多传递
+          _keys.forEach(function (key) {
+            var subError = checkType(value[key], types[type][key], []);
+            if (subError && subError.length) {
+              errList = errList.concat(subError);
+            }
+          });
+          if (Object.keys(value).length > _keys.length) {
+            errList.push('type [' + type + '] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26');
+          }
+        } else {
+          errList.push('找不到定义的type [' + type + ']!');
+        }
+      }
+      return errList;
+    }
+    if (currentType == 'Array') {
+      if (type == 'Array') {
+        !canUseObject ? errList.push('\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B' + type + '\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B') : errList = [];
+      } else {
+        if (types[type]) {
+          // 数组元素的类型
+          var itemType = types[type][0];
+          for (var i = 0; i < value.length; i++) {
+            var subError = checkType(value[i], itemType, []);
+            if (subError && subError.length) {
+              errList = errList.concat(subError);
+            }
+          }
+        } else {
+          errList.push('找不到定义的type [' + type + ']!');
+        }
+      }
+
+      return errList;
+    }
+    if (currentType == 'Function') {
+      // if (type == 'Function') {
+      //   errList = [];
+      // } else {
+      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
+      // }
+      if (types[type]) {
+        if (!types[type].input && !types[type].output) {
+          errList.push('\u627E\u4E0D\u5230' + types[type] + ' \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA');
+        }
+      } else {
+        errList.push('找不到定义的type [' + type + ']!');
+      }
+      return errList;
+    }
+    if (currentType == 'Promise') {
+      if (type == 'Promise') {
+        errList = [];
+      } else {
+        errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+    if (currentType == 'Date') {
+      if (type == 'Date') {
+        errList = [];
+      } else {
+        errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+    if (currentType == 'RegExp') {
+      if (type == 'RegExp') {
+        errList = [];
+      } else {
+        errList.push('\u5B9A\u4E49\u4E86' + type + '\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F' + currentType + ',\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4');
+      }
+      return errList;
+    }
+
+    return errList;
+  };
+
+  /**
+  * 校验参数类型
+  *
+  * @param  {string} methodName 方法名称
+  * @param  {Array}  argNames   参数名称列表
+  * @param  {Array}  argValues  参数值列表
+  * @return {bool}              校验结果
+  */
+  /**
+       * var __CHECK__DEFINES__ = {
+          "types": {
+            "Callback": {
+              "input": [],
+              "output": "Undefined"
+            }
+          },
+          "interfaces": {
+            "MultiInterface": {
+              "getMsg": {
+                "input": ["String", "Object_cml_nullable_lmc_", "Callback_cml_nullable_lmc_"],
+                "output": "String"
+              }
+            }
+          },
+          "classes": {
+            "Method": ["MultiInterface"]
+          }
+        };
+      */
+  var checkArgsType = function checkArgsType(methodName, argValues) {
+    var argList = void 0;
+    if (getType(methodName) == 'Array') {
+      // methodName:['getMsg',2];
+      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
+      // 如上，对于可传可不传的回调函数来说，Callback_cml_nullable_lmc_,所以需要将其去掉
+      var funcKey = methods[methodName[0]].input[methodName[1]].replace('_cml_nullable_lmc_', '');
+      argList = types[funcKey].input;
+      // 拿到这个回调函数的参数定义
+    } else {
+      argList = methods[methodName].input;
+    }
+    // todo 函数可能多传参数
+    argList.forEach(function (argType, index) {
+      var errList = checkType(argValues[index], argType, []);
+      if (errList && errList.length > 0) {
+        __CML_ERROR__('\n       \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5' + methodName + '\u7B2C' + (index + 1) + '\u4E2A\u53C2\u6570\n       \u9519\u8BEF\u4FE1\u606F: ' + errList.join('\n'));
+      }
+    });
+    if (argValues.length > argList.length) {
+      __CML_ERROR__('[' + methodName + ']\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26');
+    }
+  };
+
+  /**
+  * 校验返回值类型
+  *
+  * @param  {string} methodName 方法名称
+  * @param  {*}      returnData 返回值
+  * @return {bool}              校验结果
+  */
+  var checkReturnType = function checkReturnType(methodName, returnData) {
+    var output = void 0;
+    if (getType(methodName) == 'Array') {
+      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
+      // 如上，对于可传可不传的回调函数来说，Callback_cml_nullable_lmc_,所以需要将其去掉
+      var funcKey = methods[methodName[0]].input[methodName[1]].replace('_cml_nullable_lmc_', '');
+      output = types[funcKey].output;
+      // output = types[methods[methodName[0]].input[methodName[1]]].output;
+    } else {
+      output = methods[methodName].output;
+    }
+    // todo output 为什么可以是数组
+    // if (output instanceof Array) {
+    //   output.forEach(type => {
+
+    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
+    //     checkType(returnData, type,[])
+    //   });
+    // }
+    var errList = checkType(returnData, output, []);
+    if (errList && errList.length > 0) {
+      __CML_ERROR__('\n     \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5' + methodName + '\u8FD4\u56DE\u503C\n     \u9519\u8BEF\u4FE1\u606F: ' + errList.join('\n'));
+    }
+  };
+
+  /**
+  * 创建warpper
+  *
+  * @param  {string}   funcName   方法名称
+  * @param  {Function} originFunc 原有方法
+  * @return {Function}            包裹后的方法
+  */
+  var createWarpper = function createWarpper(funcName, originFunc) {
+    return function () {
+      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
+        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
+        if (getType(arg) == 'Function') {
+          return createWarpper([funcName, index], arg);
+        }
+        return arg;
+      });
+
+      checkArgsType(funcName, argValues);
+
+      var result = originFunc.apply(this, argValues);
+
+      checkReturnType(funcName, result);
+      return result;
+    };
+  };
+
+  // 获取所有方法
+  var keys = Object.keys(methods);
+
+  // 处理包装方法
+  keys.forEach(function (key) {
+    var originFunc = obj[key];
+    if (!originFunc) {
+      __CML_ERROR__('method [' + key + '] not found!');
+      return;
+    }
+
+    if (obj.hasOwnProperty(key)) {
+      obj[key] = createWarpper(key, originFunc);
+    } else {
+      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
+    }
+  });
+
+  return obj;
+};
+
+/***/ }),
+
+/***/ "../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js":
+/***/ (function(module, exports) {
+
+
+module.exports = function copyProtoProperty(obj) {
+  var EXPORT_OBJ = obj || {};
+  var EXPORT_PROTO = Object.getPrototypeOf(EXPORT_OBJ);
+  if (EXPORT_PROTO.constructor !== Object) {
+    Object.getOwnPropertyNames(EXPORT_PROTO).forEach(function (key) {
+      if (!/constructor|prototype|length/ig.test(key)) {
+        // 原型上有自身没有的属性 放到自身上
+        if (!EXPORT_OBJ.hasOwnProperty(key)) {
+          EXPORT_OBJ[key] = EXPORT_PROTO[key];
+        }
+      }
+    });
+  }
+  return EXPORT_OBJ;
+};
 
 /***/ }),
 
@@ -1671,8 +2053,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _common = __webpack_require__("./node_modules/chameleon-api/src/interfaces/createAnimation/styleLoader/common.js");
 
 var _qq = __webpack_require__("./node_modules/chameleon-api/src/interfaces/createAnimation/styleLoader/qq.js");
@@ -1680,8 +2060,6 @@ var _qq = __webpack_require__("./node_modules/chameleon-api/src/interfaces/creat
 var _common2 = __webpack_require__("./node_modules/chameleon-api/src/interfaces/createAnimation/descriptionLoader/common.js");
 
 var _util = __webpack_require__("./node_modules/chameleon-api/src/interfaces/createAnimation/_util.js");
-
-var _util2 = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1725,304 +2103,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["CreateAnimationInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 
 var styleLoaderQueue = [_common.commonLoader, _common.cacheTransformStylesLoader, _qq.transformLoader];
 var descriptionLoaderQueue = [_common2.commonLoader, _common2.cacheTransformOriginLoader];
@@ -2087,9 +2168,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util2.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -2254,13 +2337,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _index = __webpack_require__("./node_modules/chameleon-api/src/interfaces/px2cpx/index.js");
 
 var _index2 = _interopRequireDefault(_index);
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2299,304 +2378,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["UserInfoInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 
 var Method = function () {
   function Method() {
@@ -2625,9 +2407,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -2667,10 +2451,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-api/src/interfaces/getSystemInfo/index.interface";
@@ -2705,304 +2485,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["UserInfoInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 
 var systemInfo = null;
 
@@ -3051,9 +2534,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -3108,10 +2593,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-api/src/interfaces/px2cpx/getWidth.interface";
@@ -3134,304 +2615,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["getWidthInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 
 var _qq$getSystemInfoSync = qq.getSystemInfoSync(),
     windowWidth = _qq$getSystemInfoSync.windowWidth;
@@ -3451,9 +2635,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -3494,10 +2680,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-api/src/interfaces/showToast/index.interface";
@@ -3525,304 +2707,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["uiInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 
 var Method = function () {
   function Method() {
@@ -3846,9 +2731,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -4257,11 +3144,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 __webpack_require__("./node_modules/chameleon-runtime/src/interfaces/bootstrap/shim.js");
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -4289,304 +3172,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["bootstrapInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 // 定义模块的interface
 
 /* istanbul ignore next */
@@ -4610,9 +3196,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -4684,11 +3272,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _qq = __webpack_require__("./node_modules/chameleon-runtime/src/platform/qq/index.js");
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -4712,304 +3296,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["createAppInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 // 定义模块的interface
 
 var Method = function () {
@@ -5027,9 +3314,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -5062,11 +3351,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _qq = __webpack_require__("./node_modules/chameleon-runtime/src/platform/qq/index.js");
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -5090,304 +3375,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["createCmptInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 // 定义模块的interface
 
 var Method = function () {
@@ -5405,9 +3393,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -5440,11 +3430,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _qq = __webpack_require__("./node_modules/chameleon-runtime/src/platform/qq/index.js");
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -5468,304 +3454,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["createPgInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 // 定义模块的interface
 
 var Method = function () {
@@ -5783,9 +3472,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -7103,10 +4794,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-runtime/src/platform/common/util/api.interface";
@@ -7129,304 +4816,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["getInstanceInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 // 定义模块的interface
 
 var Method = function () {
@@ -7444,9 +4834,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -9117,13 +6509,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _qq = __webpack_require__("./node_modules/chameleon-store/src/platform/qq/index.js");
 
 var _qq2 = _interopRequireDefault(_qq);
-
-var _util = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/cml-compile/runtime/common/util.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -9149,304 +6537,7 @@ var __CHECK__DEFINES__ = {
     "Method": ["createStoreInterface"]
   }
 };
-var __OBJECT__WRAPPER__ = function __OBJECT__WRAPPER__(obj) {
-  var className = obj.constructor.name;
-  /* eslint-disable no-undef */
-  var defines = __CHECK__DEFINES__;
-  var enableTypes = __enableTypes__.split(',') || []; // ['Object','Array','Nullable']
-  /* eslint-disable no-undef */
-  var types = defines.types;
-  var interfaceNames = defines.classes[className];
-  var methods = {};
-
-  interfaceNames && interfaceNames.forEach(function (interfaceName) {
-    var keys = Object.keys(defines.interfaces);
-    keys.forEach(function (key) {
-      methods = _extends({}, methods, defines.interfaces[key]);
-    });
-  });
-  /**
-   * 获取类型
-   *
-   * @param  {*}      value 值
-   * @return {string}       类型
-   */
-  var getType = function getType(value) {
-    if (value instanceof Promise) {
-      return "Promise";
-    }
-    var type = Object.prototype.toString.call(value);
-    return type.replace(/\[object\s(.*)\]/g, '$1').replace(/( |^)[a-z]/g, function (L) {
-      return L.toUpperCase();
-    });
-  };
-
-  /**
-   * 校验类型  两个loader共用代码
-   *
-   * @param  {*}      value 实际传入的值
-   * @param  {string} type  静态分析时候得到的值得类型
-   * @param  {array[string]} errList 校验错误信息  类型
-   * @return {bool}         校验结果
-   */
-
-  /* eslint complexity:[2,39] */
-  var checkType = function checkType(value, originType) {
-    var errList = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-
-    var isNullableReg = /_cml_nullable_lmc_/g;
-    var type = originType.replace('_cml_nullable_lmc_', '');
-    type === "Void" && (type = "Undefined");
-    var currentType = getType(value);
-    var canUseNullable = !!~enableTypes.indexOf("Nullable");
-    var canUseObject = !!~enableTypes.indexOf("Object");
-    var canUseArray = !!~enableTypes.indexOf("Array");
-    if (currentType == 'Null') {
-      if (type == "Null") {
-        // 如果定义的参数的值就是 Null，那么校验通过
-        errList = [];
-      } else {
-        // 那么判断是否是可选参数的情况
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E");
-      }
-      return errList;
-    }
-    if (currentType == 'Undefined') {
-      // 如果运行时传入的真实值是undefined,那么可能改值在接口处就是被定义为 Undefined类型或者是 ?string 这种可选参数 nullable的情况；
-      if (type == "Undefined") {
-        errList = [];
-      } else {
-        canUseNullable && isNullableReg.test(originType) ? errList = [] : errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542Fnullable\u914D\u7F6E\u6216\u8005\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'String') {
-      if (type == 'String') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Boolean') {
-      if (type == 'Boolean') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Number') {
-      if (type == 'Number') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Object') {
-      if (type == 'Object') {
-        !canUseObject ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Object \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else if (type == 'CMLObject') {
-        errList = [];
-      } else {
-        // 这种情况的对象就是自定义的对象；
-        if (types[type]) {
-          var _keys = Object.keys(types[type]);
-          // todo 这里是同样的问题，可能多传递
-          _keys.forEach(function (key) {
-            var subError = checkType(value[key], types[type][key], []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          });
-          if (Object.keys(value).length > _keys.length) {
-            errList.push("type [" + type + "] \u53C2\u6570\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-      return errList;
-    }
-    if (currentType == 'Array') {
-      if (type == 'Array') {
-        !canUseArray ? errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49\u7C7B\u578B" + type + "\uFF0C\u9700\u8981\u4F7F\u7528\u7B26\u5408\u7C7B\u578B\u5B9A\u4E49\uFF0C\u8BF7\u786E\u8BA4\u662F\u5426\u5F00\u542F\u4E86\u53EF\u4EE5\u76F4\u63A5\u5B9A\u4E49 Array \u7C7B\u578B\u53C2\u6570\uFF1B") : errList = [];
-      } else {
-        if (types[type]) {
-          // 数组元素的类型
-          var itemType = types[type][0];
-          for (var i = 0; i < value.length; i++) {
-            var subError = checkType(value[i], itemType, []);
-            if (subError && subError.length) {
-              errList = errList.concat(subError);
-            }
-          }
-        } else {
-          errList.push('找不到定义的type [' + type + ']!');
-        }
-      }
-
-      return errList;
-    }
-    if (currentType == 'Function') {
-      // if (type == 'Function') {
-      //   errList = [];
-      // } else {
-      //   errList.push(`定义了${type}类型的参数，传入的却是${currentType},请检查所传参数是否和接口定义的一致`)
-      // }
-      if (types[type]) {
-        if (!types[type].input && !types[type].output) {
-          errList.push("\u627E\u4E0D\u5230" + types[type] + " \u51FD\u6570\u5B9A\u4E49\u7684\u8F93\u5165\u8F93\u51FA");
-        }
-      } else {
-        errList.push('找不到定义的type [' + type + ']!');
-      }
-      return errList;
-    }
-    if (currentType == 'Promise') {
-      if (type === 'Promise') {
-        errList.push("\u4E0D\u80FD\u76F4\u63A5\u5B9A\u4E49Promise\u7C7B\u578B\uFF0C\u5F02\u6B65\u8BF7\u91C7\u7528\u56DE\u8C03\u51FD\u6570\u7684\u5F62\u5F0F\uFF01");
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'Date') {
-      if (type == 'Date') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-    if (currentType == 'RegExp') {
-      if (type == 'RegExp') {
-        errList = [];
-      } else {
-        errList.push("\u5B9A\u4E49\u4E86" + type + "\u7C7B\u578B\u7684\u53C2\u6570\uFF0C\u4F20\u5165\u7684\u5374\u662F" + currentType + ",\u8BF7\u68C0\u67E5\u6240\u4F20\u53C2\u6570\u662F\u5426\u548C\u63A5\u53E3\u5B9A\u4E49\u7684\u4E00\u81F4");
-      }
-      return errList;
-    }
-
-    return errList;
-  };
-
-  /**
-   * 校验参数类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {Array}  argNames   参数名称列表
-   * @param  {Array}  argValues  参数值列表
-   * @return {bool}              校验结果
-   */
-  var checkArgsType = function checkArgsType(methodName, argValues) {
-    var argList = void 0;
-
-    if (getType(methodName) == 'Array') {
-      // 回调函数的校验    methodName[0] 方法的名字 methodName[1]该回调函数在方法的参数索引
-      argList = types[methods[methodName[0]].input[methodName[1]]].input;
-      // 拿到这个回调函数的参数定义
-    } else {
-      argList = methods[methodName].input;
-    }
-    // todo 函数可能多传参数
-    argList.forEach(function (argType, index) {
-      var errList = checkType(argValues[index], argType, []);
-      if (errList && errList.length > 0) {
-        __CML_ERROR__("\n        \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + " \u6216\u8BE5" + methodName + "\u7684\u56DE\u8C03\u51FD\u6570\u4E2D\u7B2C" + (index + 1) + "\u4E2A\u53C2\u6570\n        \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-      }
-    });
-    if (argValues.length > argList.length) {
-      __CML_ERROR__("[" + methodName + "]\u65B9\u6CD5\u53C2\u6570\u4F20\u9012\u4E2A\u6570\u4E0E\u5B9A\u4E49\u4E0D\u7B26");
-    }
-  };
-
-  /**
-   * 校验返回值类型
-   *
-   * @param  {string} methodName 方法名称
-   * @param  {*}      returnData 返回值
-   * @return {bool}              校验结果
-   */
-  var checkReturnType = function checkReturnType(methodName, returnData) {
-    var output = void 0;
-    if (getType(methodName) == 'Array') {
-      output = types[methods[methodName[0]].input[methodName[1]]].output;
-    } else {
-      output = methods[methodName].output;
-    }
-    // todo output 为什么可以是数组
-    // if (output instanceof Array) {
-    //   output.forEach(type => {
-
-    //     //todo 而且是要有一个校验不符合就check失败？ 应该是有一个校验通过就可以吧
-    //     checkType(returnData, type,[])
-    //   });
-    // }
-    var errList = checkType(returnData, output, []);
-    if (errList && errList.length > 0) {
-      __CML_ERROR__("\n      \u6821\u9A8C\u4F4D\u7F6E: \u65B9\u6CD5" + methodName + "\u8FD4\u56DE\u503C\n      \u9519\u8BEF\u4FE1\u606F: " + errList.join('\n'));
-    }
-  };
-
-  /**
-   * 创建warpper
-   *
-   * @param  {string}   funcName   方法名称
-   * @param  {Function} originFunc 原有方法
-   * @return {Function}            包裹后的方法
-   */
-  var createWarpper = function createWarpper(funcName, originFunc) {
-    return function () {
-      // 白名单方法
-      if (this && this.$cmlPolyHooks && this.$cmlPolyHooks.indexOf(originFunc)) {
-        return originFunc.apply(this, arguments);
-      }
-      var argValues = Array.prototype.slice.call(arguments).map(function (arg, index) {
-        // 对传入的方法要做特殊的处理，这个是传入的callback，对callback函数再做包装
-        if (getType(arg) == 'Function') {
-          return createWarpper([funcName, index], arg);
-        }
-        return arg;
-      });
-
-      checkArgsType(funcName, argValues);
-
-      var result = originFunc.apply(this, argValues);
-
-      checkReturnType(funcName, result);
-      return result;
-    };
-  };
-
-  // 获取所有方法
-  var keys = Object.keys(methods);
-  // 微信 预览模式会执行 白屏暂时注释
-  // Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).forEach(key => {
-  //   if (!/constructor|prototype|length/ig.test(key)) {
-  //     if (!~keys.indexOf(key)) {
-  //       __CML_ERROR__('method [' + key + '] not declare in the interface!');
-  //     }
-  //   }
-  // })
-  // 处理包装方法
-  keys.forEach(function (key) {
-    var originFunc = obj[key];
-    if (!originFunc) {
-      __CML_ERROR__('method [' + key + '] not found!');
-      return;
-    }
-
-    if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
-    } else {
-      Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
-    }
-  });
-
-  return obj;
-};
+var __OBJECT__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/checkWrapper.js");
 // 定义模块的interface
 
 var Method = function () {
@@ -9464,9 +6555,11 @@ var Method = function () {
   return Method;
 }();
 
-exports.default = __OBJECT__WRAPPER__(new Method());
+exports.default = __OBJECT__WRAPPER__(new Method(), __CML_ERROR__, __enableTypes__, __CHECK__DEFINES__);
 
-(0, _util.copyProtoProperty)(exports.default);
+
+var copyProtoProperty = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/mvvm-interface-parser/runtime/copyProto.js");
+copyProtoProperty(exports.default);
 
 /***/ }),
 
@@ -9892,53 +6985,14 @@ exports.default = _mini2.default;
 /***/ }),
 
 /***/ "./node_modules/mobx/lib/mobx.module.js":
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extras", function() { return extras; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Reaction", function() { return Reaction; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "untracked", function() { return untracked; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IDerivationState", function() { return IDerivationState; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Atom", function() { return Atom; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BaseAtom", function() { return BaseAtom; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useStrict", function() { return useStrict; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isStrictModeEnabled", function() { return isStrictModeEnabled; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "spy", function() { return spy; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "comparer", function() { return comparer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "asReference", function() { return asReference; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "asFlat", function() { return asFlat; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "asStructure", function() { return asStructure; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "asMap", function() { return asMap; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isModifierDescriptor", function() { return isModifierDescriptor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isObservableObject", function() { return isObservableObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isBoxedObservable", function() { return isObservableValue; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isObservableArray", function() { return isObservableArray; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ObservableMap", function() { return ObservableMap; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isObservableMap", function() { return isObservableMap; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "map", function() { return map; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "transaction", function() { return transaction; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "observable", function() { return observable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "computed", function() { return computed; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isObservable", function() { return isObservable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isComputed", function() { return isComputed; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendObservable", function() { return extendObservable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendShallowObservable", function() { return extendShallowObservable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "observe", function() { return observe; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "intercept", function() { return intercept; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "autorun", function() { return autorun; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "autorunAsync", function() { return autorunAsync; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "when", function() { return when; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reaction", function() { return reaction; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "action", function() { return action; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isAction", function() { return isAction; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "runInAction", function() { return runInAction; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "expr", function() { return expr; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toJS", function() { return toJS; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createTransformer", function() { return createTransformer; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "whyRun", function() { return whyRun; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "trace", function() { return trace; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isArrayLike", function() { return isArrayLike; });
+/* WEBPACK VAR INJECTION */(function(global) {Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 /** MobX - (c) Michel Weststrate 2015, 2016 - MIT Licensed */
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -9956,13 +7010,19 @@ and limitations under the License.
 ***************************************************************************** */
 /* global Reflect, Promise */
 
-var extendStatics = Object.setPrototypeOf ||
-    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+    d.__proto__ = b;
+} || function (d, b) {
+    for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    }
+};
 
 function __extends(d, b) {
     extendStatics(d, b);
-    function __() { this.constructor = d; }
+    function __() {
+        this.constructor = d;
+    }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
@@ -9972,13 +7032,15 @@ function __extends(d, b) {
  * 1) detect when they are being _used_ and report this (using reportObserved). This allows mobx to make the connection between running functions and the data they used
  * 2) they should notify mobx whenever they have _changed_. This way mobx can re-run any functions (derivations) that are using this atom.
  */
-var BaseAtom = (function () {
+var BaseAtom = function () {
     /**
      * Create a new atom. For debugging purposes it is recommended to give it a name.
      * The onBecomeObserved and onBecomeUnobserved callbacks can be used for resource management.
      */
     function BaseAtom(name) {
-        if (name === void 0) { name = "Atom@" + getNextId(); }
+        if (name === void 0) {
+            name = "Atom@" + getNextId();
+        }
         this.name = name;
         this.isPendingUnobservation = true; // for effective unobserving. BaseAtom has true, for extra optimization, so its onBecomeUnobserved never gets called, because it's not needed
         this.observers = [];
@@ -10008,17 +7070,23 @@ var BaseAtom = (function () {
         return this.name;
     };
     return BaseAtom;
-}());
-var Atom = (function (_super) {
+}();
+var Atom = function (_super) {
     __extends(Atom, _super);
     /**
      * Create a new atom. For debugging purposes it is recommended to give it a name.
      * The onBecomeObserved and onBecomeUnobserved callbacks can be used for resource management.
      */
     function Atom(name, onBecomeObservedHandler, onBecomeUnobservedHandler) {
-        if (name === void 0) { name = "Atom@" + getNextId(); }
-        if (onBecomeObservedHandler === void 0) { onBecomeObservedHandler = noop; }
-        if (onBecomeUnobservedHandler === void 0) { onBecomeUnobservedHandler = noop; }
+        if (name === void 0) {
+            name = "Atom@" + getNextId();
+        }
+        if (onBecomeObservedHandler === void 0) {
+            onBecomeObservedHandler = noop;
+        }
+        if (onBecomeUnobservedHandler === void 0) {
+            onBecomeUnobservedHandler = noop;
+        }
         var _this = _super.call(this, name) || this;
         _this.name = name;
         _this.onBecomeObservedHandler = onBecomeObservedHandler;
@@ -10044,7 +7112,7 @@ var Atom = (function (_super) {
         this.onBecomeUnobservedHandler();
     };
     return Atom;
-}(BaseAtom));
+}(BaseAtom);
 var isAtom = createInstanceofPredicate("Atom", BaseAtom);
 
 function hasInterceptors(interceptable) {
@@ -10055,24 +7123,20 @@ function registerInterceptor(interceptable, handler) {
     interceptors.push(handler);
     return once(function () {
         var idx = interceptors.indexOf(handler);
-        if (idx !== -1)
-            interceptors.splice(idx, 1);
+        if (idx !== -1) interceptors.splice(idx, 1);
     });
 }
 function interceptChange(interceptable, change) {
     var prevU = untrackedStart();
     try {
         var interceptors = interceptable.interceptors;
-        if (interceptors)
-            for (var i = 0, l = interceptors.length; i < l; i++) {
-                change = interceptors[i](change);
-                invariant(!change || change.type, "Intercept handlers should return nothing or a change object");
-                if (!change)
-                    break;
-            }
+        if (interceptors) for (var i = 0, l = interceptors.length; i < l; i++) {
+            change = interceptors[i](change);
+            invariant(!change || change.type, "Intercept handlers should return nothing or a change object");
+            if (!change) break;
+        }
         return change;
-    }
-    finally {
+    } finally {
         untrackedEnd(prevU);
     }
 }
@@ -10085,15 +7149,13 @@ function registerListener(listenable, handler) {
     listeners.push(handler);
     return once(function () {
         var idx = listeners.indexOf(handler);
-        if (idx !== -1)
-            listeners.splice(idx, 1);
+        if (idx !== -1) listeners.splice(idx, 1);
     });
 }
 function notifyListeners(listenable, change) {
     var prevU = untrackedStart();
     var listeners = listenable.changeListeners;
-    if (!listeners)
-        return;
+    if (!listeners) return;
     listeners = listeners.slice();
     for (var i = 0, l = listeners.length; i < l; i++) {
         listeners[i](change);
@@ -10105,11 +7167,11 @@ function isSpyEnabled() {
     return !!globalState.spyListeners.length;
 }
 function spyReport(event) {
-    if (!globalState.spyListeners.length)
-        return;
+    if (!globalState.spyListeners.length) return;
     var listeners = globalState.spyListeners;
-    for (var i = 0, l = listeners.length; i < l; i++)
+    for (var i = 0, l = listeners.length; i < l; i++) {
         listeners[i](event);
+    }
 }
 function spyReportStart(event) {
     var change = objectAssign({}, event, { spyReportStart: true });
@@ -10117,22 +7179,18 @@ function spyReportStart(event) {
 }
 var END_EVENT = { spyReportEnd: true };
 function spyReportEnd(change) {
-    if (change)
-        spyReport(objectAssign({}, change, END_EVENT));
-    else
-        spyReport(END_EVENT);
+    if (change) spyReport(objectAssign({}, change, END_EVENT));else spyReport(END_EVENT);
 }
 function spy(listener) {
     globalState.spyListeners.push(listener);
     return once(function () {
         var idx = globalState.spyListeners.indexOf(listener);
-        if (idx !== -1)
-            globalState.spyListeners.splice(idx, 1);
+        if (idx !== -1) globalState.spyListeners.splice(idx, 1);
     });
 }
 
 function iteratorSymbol() {
-    return (typeof Symbol === "function" && Symbol.iterator) || "@@iterator";
+    return typeof Symbol === "function" && Symbol.iterator || "@@iterator";
 }
 var IS_ITERATING_MARKER = "__$$iterating";
 function arrayAsIterator(array) {
@@ -10157,17 +7215,17 @@ function declareIterator(prototType, iteratorFactory) {
 
 var MAX_SPLICE_SIZE = 10000; // See e.g. https://github.com/mobxjs/mobx/issues/859
 // Detects bug in safari 9.1.1 (or iOS 9 safari mobile). See #364
-var safariPrototypeSetterInheritanceBug = (function () {
+var safariPrototypeSetterInheritanceBug = function () {
     var v = false;
     var p = {};
     Object.defineProperty(p, "0", {
-        set: function () {
+        set: function set() {
             v = true;
         }
     });
     Object.create(p)["0"] = 1;
     return v === false;
-})();
+}();
 /**
  * This array buffer contains two lists of properties, so that all arrays
  * can recycle their property definitions, which significantly improves performance of creating
@@ -10175,19 +7233,16 @@ var safariPrototypeSetterInheritanceBug = (function () {
  */
 var OBSERVABLE_ARRAY_BUFFER_SIZE = 0;
 // Typescript workaround to make sure ObservableArray extends Array
-var StubArray = (function () {
-    function StubArray() {
-    }
+var StubArray = function () {
+    function StubArray() {}
     return StubArray;
-}());
+}();
 function inherit(ctor, proto) {
     if (typeof Object["setPrototypeOf"] !== "undefined") {
         Object["setPrototypeOf"](ctor.prototype, proto);
-    }
-    else if (typeof ctor.prototype.__proto__ !== "undefined") {
+    } else if (typeof ctor.prototype.__proto__ !== "undefined") {
         ctor.prototype.__proto__ = proto;
-    }
-    else {
+    } else {
         ctor["prototype"] = proto;
     }
 }
@@ -10196,21 +7251,8 @@ inherit(StubArray, Array.prototype);
 // Make them writeable and configurable in prototype chain
 // https://github.com/alibaba/weex/pull/1529
 if (Object.isFrozen(Array)) {
-    
-    [
-        "constructor",
-        "push",
-        "shift",
-        "concat",
-        "pop",
-        "unshift",
-        "replace",
-        "find",
-        "findIndex",
-        "splice",
-        "reverse",
-        "sort"
-    ].forEach(function (key) {
+
+    ["constructor", "push", "shift", "concat", "pop", "unshift", "replace", "find", "findIndex", "splice", "reverse", "sort"].forEach(function (key) {
         Object.defineProperty(StubArray.prototype, key, {
             configurable: true,
             writable: true,
@@ -10218,7 +7260,7 @@ if (Object.isFrozen(Array)) {
         });
     });
 }
-var ObservableArrayAdministration = (function () {
+var ObservableArrayAdministration = function () {
     function ObservableArrayAdministration(name, enhancer, array, owned) {
         this.array = array;
         this.owned = owned;
@@ -10227,23 +7269,25 @@ var ObservableArrayAdministration = (function () {
         this.interceptors = null;
         this.changeListeners = null;
         this.atom = new BaseAtom(name || "ObservableArray@" + getNextId());
-        this.enhancer = function (newV, oldV) { return enhancer(newV, oldV, name + "[..]"); };
+        this.enhancer = function (newV, oldV) {
+            return enhancer(newV, oldV, name + "[..]");
+        };
     }
     ObservableArrayAdministration.prototype.dehanceValue = function (value) {
-        if (this.dehancer !== undefined)
-            return this.dehancer(value);
+        if (this.dehancer !== undefined) return this.dehancer(value);
         return value;
     };
     ObservableArrayAdministration.prototype.dehanceValues = function (values) {
-        if (this.dehancer !== undefined)
-            return values.map(this.dehancer);
+        if (this.dehancer !== undefined) return values.map(this.dehancer);
         return values;
     };
     ObservableArrayAdministration.prototype.intercept = function (handler) {
         return registerInterceptor(this, handler);
     };
     ObservableArrayAdministration.prototype.observe = function (listener, fireImmediately) {
-        if (fireImmediately === void 0) { fireImmediately = false; }
+        if (fireImmediately === void 0) {
+            fireImmediately = false;
+        }
         if (fireImmediately) {
             listener({
                 object: this.array,
@@ -10262,46 +7306,29 @@ var ObservableArrayAdministration = (function () {
         return this.values.length;
     };
     ObservableArrayAdministration.prototype.setArrayLength = function (newLength) {
-        if (typeof newLength !== "number" || newLength < 0)
-            throw new Error("[mobx.array] Out of range: " + newLength);
+        if (typeof newLength !== "number" || newLength < 0) throw new Error("[mobx.array] Out of range: " + newLength);
         var currentLength = this.values.length;
-        if (newLength === currentLength)
-            return;
-        else if (newLength > currentLength) {
+        if (newLength === currentLength) return;else if (newLength > currentLength) {
             var newItems = new Array(newLength - currentLength);
-            for (var i = 0; i < newLength - currentLength; i++)
-                newItems[i] = undefined; // No Array.fill everywhere...
+            for (var i = 0; i < newLength - currentLength; i++) {
+                newItems[i] = undefined;
+            } // No Array.fill everywhere...
             this.spliceWithArray(currentLength, 0, newItems);
-        }
-        else
-            this.spliceWithArray(newLength, currentLength - newLength);
+        } else this.spliceWithArray(newLength, currentLength - newLength);
     };
     // adds / removes the necessary numeric properties to this object
     ObservableArrayAdministration.prototype.updateArrayLength = function (oldLength, delta) {
-        if (oldLength !== this.lastKnownLength)
-            throw new Error("[mobx] Modification exception: the internal structure of an observable array was changed. Did you use peek() to change it?");
+        if (oldLength !== this.lastKnownLength) throw new Error("[mobx] Modification exception: the internal structure of an observable array was changed. Did you use peek() to change it?");
         this.lastKnownLength += delta;
-        if (delta > 0 && oldLength + delta + 1 > OBSERVABLE_ARRAY_BUFFER_SIZE)
-            reserveArrayBuffer(oldLength + delta + 1);
+        if (delta > 0 && oldLength + delta + 1 > OBSERVABLE_ARRAY_BUFFER_SIZE) reserveArrayBuffer(oldLength + delta + 1);
     };
     ObservableArrayAdministration.prototype.spliceWithArray = function (index, deleteCount, newItems) {
         var _this = this;
         checkIfStateModificationsAreAllowed(this.atom);
         var length = this.values.length;
-        if (index === undefined)
-            index = 0;
-        else if (index > length)
-            index = length;
-        else if (index < 0)
-            index = Math.max(0, length + index);
-        if (arguments.length === 1)
-            deleteCount = length - index;
-        else if (deleteCount === undefined || deleteCount === null)
-            deleteCount = 0;
-        else
-            deleteCount = Math.max(0, Math.min(deleteCount, length - index));
-        if (newItems === undefined)
-            newItems = [];
+        if (index === undefined) index = 0;else if (index > length) index = length;else if (index < 0) index = Math.max(0, length + index);
+        if (arguments.length === 1) deleteCount = length - index;else if (deleteCount === undefined || deleteCount === null) deleteCount = 0;else deleteCount = Math.max(0, Math.min(deleteCount, length - index));
+        if (newItems === undefined) newItems = [];
         if (hasInterceptors(this)) {
             var change = interceptChange(this, {
                 object: this.array,
@@ -10310,28 +7337,25 @@ var ObservableArrayAdministration = (function () {
                 removedCount: deleteCount,
                 added: newItems
             });
-            if (!change)
-                return EMPTY_ARRAY;
+            if (!change) return EMPTY_ARRAY;
             deleteCount = change.removedCount;
             newItems = change.added;
         }
-        newItems = newItems.map(function (v) { return _this.enhancer(v, undefined); });
+        newItems = newItems.map(function (v) {
+            return _this.enhancer(v, undefined);
+        });
         var lengthDelta = newItems.length - deleteCount;
         this.updateArrayLength(length, lengthDelta); // create or remove new entries
         var res = this.spliceItemsIntoValues(index, deleteCount, newItems);
-        if (deleteCount !== 0 || newItems.length !== 0)
-            this.notifyArraySplice(index, newItems, res);
+        if (deleteCount !== 0 || newItems.length !== 0) this.notifyArraySplice(index, newItems, res);
         return this.dehanceValues(res);
     };
     ObservableArrayAdministration.prototype.spliceItemsIntoValues = function (index, deleteCount, newItems) {
         if (newItems.length < MAX_SPLICE_SIZE) {
             return (_a = this.values).splice.apply(_a, [index, deleteCount].concat(newItems));
-        }
-        else {
+        } else {
             var res = this.values.slice(index, index + deleteCount);
-            this.values = this.values
-                .slice(0, index)
-                .concat(newItems, this.values.slice(index + deleteCount));
+            this.values = this.values.slice(0, index).concat(newItems, this.values.slice(index + deleteCount));
             return res;
         }
         var _a;
@@ -10339,53 +7363,47 @@ var ObservableArrayAdministration = (function () {
     ObservableArrayAdministration.prototype.notifyArrayChildUpdate = function (index, newValue, oldValue) {
         var notifySpy = !this.owned && isSpyEnabled();
         var notify = hasListeners(this);
-        var change = notify || notifySpy
-            ? {
-                object: this.array,
-                type: "update",
-                index: index,
-                newValue: newValue,
-                oldValue: oldValue
-            }
-            : null;
-        if (notifySpy)
-            spyReportStart(change);
+        var change = notify || notifySpy ? {
+            object: this.array,
+            type: "update",
+            index: index,
+            newValue: newValue,
+            oldValue: oldValue
+        } : null;
+        if (notifySpy) spyReportStart(change);
         this.atom.reportChanged();
-        if (notify)
-            notifyListeners(this, change);
-        if (notifySpy)
-            spyReportEnd();
+        if (notify) notifyListeners(this, change);
+        if (notifySpy) spyReportEnd();
     };
     ObservableArrayAdministration.prototype.notifyArraySplice = function (index, added, removed) {
         var notifySpy = !this.owned && isSpyEnabled();
         var notify = hasListeners(this);
-        var change = notify || notifySpy
-            ? {
-                object: this.array,
-                type: "splice",
-                index: index,
-                removed: removed,
-                added: added,
-                removedCount: removed.length,
-                addedCount: added.length
-            }
-            : null;
-        if (notifySpy)
-            spyReportStart(change);
+        var change = notify || notifySpy ? {
+            object: this.array,
+            type: "splice",
+            index: index,
+            removed: removed,
+            added: added,
+            removedCount: removed.length,
+            addedCount: added.length
+        } : null;
+        if (notifySpy) spyReportStart(change);
         this.atom.reportChanged();
         // conform: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/observe
-        if (notify)
-            notifyListeners(this, change);
-        if (notifySpy)
-            spyReportEnd();
+        if (notify) notifyListeners(this, change);
+        if (notifySpy) spyReportEnd();
     };
     return ObservableArrayAdministration;
-}());
-var ObservableArray = (function (_super) {
+}();
+var ObservableArray = function (_super) {
     __extends(ObservableArray, _super);
     function ObservableArray(initialValues, enhancer, name, owned) {
-        if (name === void 0) { name = "ObservableArray@" + getNextId(); }
-        if (owned === void 0) { owned = false; }
+        if (name === void 0) {
+            name = "ObservableArray@" + getNextId();
+        }
+        if (owned === void 0) {
+            owned = false;
+        }
         var _this = _super.call(this) || this;
         var adm = new ObservableArrayAdministration(name, enhancer, _this, owned);
         addHiddenFinalProp(_this, "$mobx", adm);
@@ -10403,7 +7421,9 @@ var ObservableArray = (function (_super) {
         return this.$mobx.intercept(handler);
     };
     ObservableArray.prototype.observe = function (listener, fireImmediately) {
-        if (fireImmediately === void 0) { fireImmediately = false; }
+        if (fireImmediately === void 0) {
+            fireImmediately = false;
+        }
         return this.$mobx.observe(listener, fireImmediately);
     };
     ObservableArray.prototype.clear = function () {
@@ -10415,7 +7435,9 @@ var ObservableArray = (function (_super) {
             arrays[_i] = arguments[_i];
         }
         this.$mobx.atom.reportObserved();
-        return Array.prototype.concat.apply(this.peek(), arrays.map(function (a) { return (isObservableArray(a) ? a.peek() : a); }));
+        return Array.prototype.concat.apply(this.peek(), arrays.map(function (a) {
+            return isObservableArray(a) ? a.peek() : a;
+        }));
     };
     ObservableArray.prototype.replace = function (newItems) {
         return this.$mobx.spliceWithArray(0, this.$mobx.values.length, newItems);
@@ -10437,18 +7459,22 @@ var ObservableArray = (function (_super) {
     };
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
     ObservableArray.prototype.find = function (predicate, thisArg, fromIndex) {
-        if (fromIndex === void 0) { fromIndex = 0; }
+        if (fromIndex === void 0) {
+            fromIndex = 0;
+        }
         var idx = this.findIndex.apply(this, arguments);
         return idx === -1 ? undefined : this.get(idx);
     };
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
     ObservableArray.prototype.findIndex = function (predicate, thisArg, fromIndex) {
-        if (fromIndex === void 0) { fromIndex = 0; }
-        var items = this.peek(), l = items.length;
-        for (var i = fromIndex; i < l; i++)
-            if (predicate.call(thisArg, items[i], i, this))
-                return i;
-        return -1;
+        if (fromIndex === void 0) {
+            fromIndex = 0;
+        }
+        var items = this.peek(),
+            l = items.length;
+        for (var i = fromIndex; i < l; i++) {
+            if (predicate.call(thisArg, items[i], i, this)) return i;
+        }return -1;
     };
     /*
      * functions that do alter the internal structure of the array, (based on lib.es6.d.ts)
@@ -10537,15 +7563,10 @@ var ObservableArray = (function (_super) {
         var oldItems = this.$mobx.values;
         var newItems;
         if (fromIndex < toIndex) {
-            newItems = oldItems.slice(0, fromIndex).concat(oldItems.slice(fromIndex + 1, toIndex + 1), [
-                oldItems[fromIndex]
-            ], oldItems.slice(toIndex + 1));
-        }
-        else {
+            newItems = oldItems.slice(0, fromIndex).concat(oldItems.slice(fromIndex + 1, toIndex + 1), [oldItems[fromIndex]], oldItems.slice(toIndex + 1));
+        } else {
             // toIndex < fromIndex
-            newItems = oldItems.slice(0, toIndex).concat([
-                oldItems[fromIndex]
-            ], oldItems.slice(toIndex, fromIndex), oldItems.slice(fromIndex + 1));
+            newItems = oldItems.slice(0, toIndex).concat([oldItems[fromIndex]], oldItems.slice(toIndex, fromIndex), oldItems.slice(fromIndex + 1));
         }
         this.replace(newItems);
     };
@@ -10557,9 +7578,7 @@ var ObservableArray = (function (_super) {
                 impl.atom.reportObserved();
                 return impl.dehanceValue(impl.values[index]);
             }
-            console.warn("[mobx.array] Attempt to read an array index (" + index + ") that is out of bounds (" + impl
-                .values
-                .length + "). Please check length first. Out of bound indices will not be tracked by MobX");
+            console.warn("[mobx.array] Attempt to read an array index (" + index + ") that is out of bounds (" + impl.values.length + "). Please check length first. Out of bound indices will not be tracked by MobX");
         }
         return undefined;
     };
@@ -10578,8 +7597,7 @@ var ObservableArray = (function (_super) {
                     index: index,
                     newValue: newValue
                 });
-                if (!change)
-                    return;
+                if (!change) return;
                 newValue = change.newValue;
             }
             newValue = adm.enhancer(newValue, oldValue);
@@ -10588,46 +7606,30 @@ var ObservableArray = (function (_super) {
                 values[index] = newValue;
                 adm.notifyArrayChildUpdate(index, newValue, oldValue);
             }
-        }
-        else if (index === values.length) {
+        } else if (index === values.length) {
             // add a new item
             adm.spliceWithArray(index, 0, [newValue]);
-        }
-        else {
+        } else {
             // out of bounds
             throw new Error("[mobx.array] Index out of bounds, " + index + " is larger than " + values.length);
         }
     };
     return ObservableArray;
-}(StubArray));
+}(StubArray);
 declareIterator(ObservableArray.prototype, function () {
     return arrayAsIterator(this.slice());
 });
 Object.defineProperty(ObservableArray.prototype, "length", {
     enumerable: false,
     configurable: true,
-    get: function () {
+    get: function get() {
         return this.$mobx.getArrayLength();
     },
-    set: function (newLength) {
+    set: function set(newLength) {
         this.$mobx.setArrayLength(newLength);
     }
 });
-[
-    "every",
-    "filter",
-    "forEach",
-    "indexOf",
-    "join",
-    "lastIndexOf",
-    "map",
-    "reduce",
-    "reduceRight",
-    "slice",
-    "some",
-    "toString",
-    "toLocaleString"
-].forEach(function (funcName) {
+["every", "filter", "forEach", "indexOf", "join", "lastIndexOf", "map", "reduce", "reduceRight", "slice", "some", "toString", "toLocaleString"].forEach(function (funcName) {
     var baseFunc = Array.prototype[funcName];
     invariant(typeof baseFunc === "function", "Base function not defined on Array prototype: '" + funcName + "'");
     addHiddenProp(ObservableArray.prototype, funcName, function () {
@@ -10637,44 +7639,18 @@ Object.defineProperty(ObservableArray.prototype, "length", {
 /**
  * We don't want those to show up in `for (const key in ar)` ...
  */
-makeNonEnumerable(ObservableArray.prototype, [
-    "constructor",
-    "intercept",
-    "observe",
-    "clear",
-    "concat",
-    "get",
-    "replace",
-    "toJS",
-    "toJSON",
-    "peek",
-    "find",
-    "findIndex",
-    "splice",
-    "spliceWithArray",
-    "push",
-    "pop",
-    "set",
-    "shift",
-    "unshift",
-    "reverse",
-    "sort",
-    "remove",
-    "move",
-    "toString",
-    "toLocaleString"
-]);
+makeNonEnumerable(ObservableArray.prototype, ["constructor", "intercept", "observe", "clear", "concat", "get", "replace", "toJS", "toJSON", "peek", "find", "findIndex", "splice", "spliceWithArray", "push", "pop", "set", "shift", "unshift", "reverse", "sort", "remove", "move", "toString", "toLocaleString"]);
 // See #364
 var ENTRY_0 = createArrayEntryDescriptor(0);
 function createArrayEntryDescriptor(index) {
     return {
         enumerable: false,
         configurable: false,
-        get: function () {
+        get: function get() {
             // TODO: Check `this`?, see #752?
             return this.get(index);
         },
-        set: function (value) {
+        set: function set(value) {
             this.set(index, value);
         }
     };
@@ -10683,9 +7659,9 @@ function createArrayBufferItem(index) {
     Object.defineProperty(ObservableArray.prototype, "" + index, createArrayEntryDescriptor(index));
 }
 function reserveArrayBuffer(max) {
-    for (var index = OBSERVABLE_ARRAY_BUFFER_SIZE; index < max; index++)
+    for (var index = OBSERVABLE_ARRAY_BUFFER_SIZE; index < max; index++) {
         createArrayBufferItem(index);
-    OBSERVABLE_ARRAY_BUFFER_SIZE = max;
+    }OBSERVABLE_ARRAY_BUFFER_SIZE = max;
 }
 reserveArrayBuffer(1000);
 var isObservableArrayAdministration = createInstanceofPredicate("ObservableArrayAdministration", ObservableArrayAdministration);
@@ -10694,11 +7670,15 @@ function isObservableArray(thing) {
 }
 
 var UNCHANGED = {};
-var ObservableValue = (function (_super) {
+var ObservableValue = function (_super) {
     __extends(ObservableValue, _super);
     function ObservableValue(value, enhancer, name, notifySpy) {
-        if (name === void 0) { name = "ObservableValue@" + getNextId(); }
-        if (notifySpy === void 0) { notifySpy = true; }
+        if (name === void 0) {
+            name = "ObservableValue@" + getNextId();
+        }
+        if (notifySpy === void 0) {
+            notifySpy = true;
+        }
         var _this = _super.call(this, name) || this;
         _this.enhancer = enhancer;
         _this.hasUnreportedChange = false;
@@ -10711,8 +7691,7 @@ var ObservableValue = (function (_super) {
         return _this;
     }
     ObservableValue.prototype.dehanceValue = function (value) {
-        if (this.dehancer !== undefined)
-            return this.dehancer(value);
+        if (this.dehancer !== undefined) return this.dehancer(value);
         return value;
     };
     ObservableValue.prototype.set = function (newValue) {
@@ -10729,8 +7708,7 @@ var ObservableValue = (function (_super) {
                 });
             }
             this.setNewValue(newValue);
-            if (notifySpy)
-                spyReportEnd();
+            if (notifySpy) spyReportEnd();
         }
     };
     ObservableValue.prototype.prepareNewValue = function (newValue) {
@@ -10741,8 +7719,7 @@ var ObservableValue = (function (_super) {
                 type: "update",
                 newValue: newValue
             });
-            if (!change)
-                return UNCHANGED;
+            if (!change) return UNCHANGED;
             newValue = change.newValue;
         }
         // apply modifier
@@ -10770,13 +7747,12 @@ var ObservableValue = (function (_super) {
         return registerInterceptor(this, handler);
     };
     ObservableValue.prototype.observe = function (listener, fireImmediately) {
-        if (fireImmediately)
-            listener({
-                object: this,
-                type: "update",
-                newValue: this.value,
-                oldValue: undefined
-            });
+        if (fireImmediately) listener({
+            object: this,
+            type: "update",
+            newValue: this.value,
+            oldValue: undefined
+        });
         return registerListener(this, listener);
     };
     ObservableValue.prototype.toJSON = function () {
@@ -10789,7 +7765,7 @@ var ObservableValue = (function (_super) {
         return toPrimitive(this.get());
     };
     return ObservableValue;
-}(BaseAtom));
+}(BaseAtom);
 ObservableValue.prototype[primitiveSymbol()] = ObservableValue.prototype.valueOf;
 var isObservableValue = createInstanceofPredicate("ObservableValue", ObservableValue);
 
@@ -10839,7 +7815,7 @@ function getMessage(id) {
 function createAction(actionName, fn) {
     invariant(typeof fn === "function", getMessage("m026"));
     invariant(typeof actionName === "string" && actionName.length > 0, "actions should have valid names, got: '" + actionName + "'");
-    var res = function () {
+    var res = function res() {
         return executeAction(actionName, fn, this, arguments);
     };
     res.originalFn = fn;
@@ -10850,8 +7826,7 @@ function executeAction(actionName, fn, scope, args) {
     var runInfo = startAction(actionName, fn, scope, args);
     try {
         return fn.apply(scope, args);
-    }
-    finally {
+    } finally {
         endAction(runInfo);
     }
 }
@@ -10860,12 +7835,11 @@ function startAction(actionName, fn, scope, args) {
     var startTime = 0;
     if (notifySpy) {
         startTime = Date.now();
-        var l = (args && args.length) || 0;
+        var l = args && args.length || 0;
         var flattendArgs = new Array(l);
-        if (l > 0)
-            for (var i = 0; i < l; i++)
-                flattendArgs[i] = args[i];
-        spyReportStart({
+        if (l > 0) for (var i = 0; i < l; i++) {
+            flattendArgs[i] = args[i];
+        }spyReportStart({
             type: "action",
             name: actionName,
             fn: fn,
@@ -10887,8 +7861,7 @@ function endAction(runInfo) {
     allowStateChangesEnd(runInfo.prevAllowStateChanges);
     endBatch();
     untrackedEnd(runInfo.prevDerivation);
-    if (runInfo.notifySpy)
-        spyReportEnd({ time: Date.now() - runInfo.startTime });
+    if (runInfo.notifySpy) spyReportEnd({ time: Date.now() - runInfo.startTime });
 }
 function useStrict(strict) {
     invariant(globalState.trackingDerivation === null, getMessage("m028"));
@@ -10908,8 +7881,7 @@ function allowStateChanges(allowStateChanges, func) {
     var res;
     try {
         res = func();
-    }
-    finally {
+    } finally {
         allowStateChangesEnd(prev);
     }
     return res;
@@ -10935,70 +7907,68 @@ function allowStateChangesEnd(prev) {
  * This means that these properties despite being enumerable might not show up in Object.keys() (but they will show up in for...in loops).
  */
 function createClassPropertyDecorator(
-    /**
-     * This function is invoked once, when the property is added to a new instance.
-     * When this happens is not strictly determined due to differences in TS and Babel:
-     * Typescript: Usually when constructing the new instance
-     * Babel, sometimes Typescript: during the first get / set
-     * Both: when calling `runLazyInitializers(instance)`
-     */
-    onInitialize, get, set, enumerable, 
-    /**
-     * Can this decorator invoked with arguments? e.g. @decorator(args)
-     */
-    allowCustomArguments) {
+/**
+ * This function is invoked once, when the property is added to a new instance.
+ * When this happens is not strictly determined due to differences in TS and Babel:
+ * Typescript: Usually when constructing the new instance
+ * Babel, sometimes Typescript: during the first get / set
+ * Both: when calling `runLazyInitializers(instance)`
+ */
+onInitialize, _get, _set, enumerable,
+/**
+ * Can this decorator invoked with arguments? e.g. @decorator(args)
+ */
+allowCustomArguments) {
     function classPropertyDecorator(target, key, descriptor, customArgs, argLen) {
-        if (argLen === void 0) { argLen = 0; }
+        if (argLen === void 0) {
+            argLen = 0;
+        }
         invariant(allowCustomArguments || quacksLikeADecorator(arguments), "This function is a decorator, but it wasn't invoked like a decorator");
         if (!descriptor) {
             // typescript (except for getter / setters)
             var newDescriptor = {
                 enumerable: enumerable,
                 configurable: true,
-                get: function () {
-                    if (!this.__mobxInitializedProps || this.__mobxInitializedProps[key] !== true)
-                        typescriptInitializeProperty(this, key, undefined, onInitialize, customArgs, descriptor);
-                    return get.call(this, key);
+                get: function get() {
+                    if (!this.__mobxInitializedProps || this.__mobxInitializedProps[key] !== true) typescriptInitializeProperty(this, key, undefined, onInitialize, customArgs, descriptor);
+                    return _get.call(this, key);
                 },
-                set: function (v) {
+                set: function set(v) {
                     if (!this.__mobxInitializedProps || this.__mobxInitializedProps[key] !== true) {
                         typescriptInitializeProperty(this, key, v, onInitialize, customArgs, descriptor);
-                    }
-                    else {
-                        set.call(this, key, v);
+                    } else {
+                        _set.call(this, key, v);
                     }
                 }
             };
-            if (arguments.length < 3 || (arguments.length === 5 && argLen < 3)) {
+            if (arguments.length < 3 || arguments.length === 5 && argLen < 3) {
                 // Typescript target is ES3, so it won't define property for us
                 // or using Reflect.decorate polyfill, which will return no descriptor
                 // (see https://github.com/mobxjs/mobx/issues/333)
                 Object.defineProperty(target, key, newDescriptor);
             }
             return newDescriptor;
-        }
-        else {
+        } else {
             // babel and typescript getter / setter props
             if (!hasOwnProperty(target, "__mobxLazyInitializers")) {
-                addHiddenProp(target, "__mobxLazyInitializers", (target.__mobxLazyInitializers && target.__mobxLazyInitializers.slice()) || [] // support inheritance
+                addHiddenProp(target, "__mobxLazyInitializers", target.__mobxLazyInitializers && target.__mobxLazyInitializers.slice() || [] // support inheritance
                 );
             }
-            var value_1 = descriptor.value, initializer_1 = descriptor.initializer;
+            var value_1 = descriptor.value,
+                initializer_1 = descriptor.initializer;
             target.__mobxLazyInitializers.push(function (instance) {
                 onInitialize(instance, key, initializer_1 ? initializer_1.call(instance) : value_1, customArgs, descriptor);
             });
             return {
                 enumerable: enumerable,
                 configurable: true,
-                get: function () {
-                    if (this.__mobxDidRunLazyInitializers !== true)
-                        runLazyInitializers(this);
-                    return get.call(this, key);
+                get: function get() {
+                    if (this.__mobxDidRunLazyInitializers !== true) runLazyInitializers(this);
+                    return _get.call(this, key);
                 },
-                set: function (v) {
-                    if (this.__mobxDidRunLazyInitializers !== true)
-                        runLazyInitializers(this);
-                    set.call(this, key, v);
+                set: function set(v) {
+                    if (this.__mobxDidRunLazyInitializers !== true) runLazyInitializers(this);
+                    _set.call(this, key, v);
                 }
             };
         }
@@ -11007,8 +7977,7 @@ function createClassPropertyDecorator(
         /** If custom arguments are allowed, we should return a function that returns a decorator */
         return function () {
             /** Direct invocation: @decorator bla */
-            if (quacksLikeADecorator(arguments))
-                return classPropertyDecorator.apply(null, arguments);
+            if (quacksLikeADecorator(arguments)) return classPropertyDecorator.apply(null, arguments);
             /** Indirect invocation: @decorator(args) bla */
             var outerArgs = arguments;
             var argLen = arguments.length;
@@ -11020,18 +7989,17 @@ function createClassPropertyDecorator(
     return classPropertyDecorator;
 }
 function typescriptInitializeProperty(instance, key, v, onInitialize, customArgs, baseDescriptor) {
-    if (!hasOwnProperty(instance, "__mobxInitializedProps"))
-        addHiddenProp(instance, "__mobxInitializedProps", {});
+    if (!hasOwnProperty(instance, "__mobxInitializedProps")) addHiddenProp(instance, "__mobxInitializedProps", {});
     instance.__mobxInitializedProps[key] = true;
     onInitialize(instance, key, v, customArgs, baseDescriptor);
 }
 function runLazyInitializers(instance) {
-    if (instance.__mobxDidRunLazyInitializers === true)
-        return;
+    if (instance.__mobxDidRunLazyInitializers === true) return;
     if (instance.__mobxLazyInitializers) {
         addHiddenProp(instance, "__mobxDidRunLazyInitializers", true);
-        instance.__mobxDidRunLazyInitializers &&
-            instance.__mobxLazyInitializers.forEach(function (initializer) { return initializer(instance); });
+        instance.__mobxDidRunLazyInitializers && instance.__mobxLazyInitializers.forEach(function (initializer) {
+            return initializer(instance);
+        });
     }
 }
 function quacksLikeADecorator(args) {
@@ -11055,12 +8023,9 @@ var boundActionDecorator = createClassPropertyDecorator(function (target, key, v
     invariant(false, getMessage("m001"));
 }, false, false);
 var action = function action(arg1, arg2, arg3, arg4) {
-    if (arguments.length === 1 && typeof arg1 === "function")
-        return createAction(arg1.name || "<unnamed action>", arg1);
-    if (arguments.length === 2 && typeof arg2 === "function")
-        return createAction(arg1, arg2);
-    if (arguments.length === 1 && typeof arg1 === "string")
-        return namedActionDecorator(arg1);
+    if (arguments.length === 1 && typeof arg1 === "function") return createAction(arg1.name || "<unnamed action>", arg1);
+    if (arguments.length === 2 && typeof arg2 === "function") return createAction(arg1, arg2);
+    if (arguments.length === 1 && typeof arg1 === "string") return namedActionDecorator(arg1);
     return namedActionDecorator(arg2).apply(null, arguments);
 };
 action.bound = function boundAction(arg1, arg2, arg3) {
@@ -11101,7 +8066,7 @@ function isAction(thing) {
     return typeof thing === "function" && thing.isMobxAction === true;
 }
 function defineBoundAction(target, propertyName, fn) {
-    var res = function () {
+    var res = function res() {
         return executeAction(propertyName, fn, target, arguments);
     };
     res.isMobxAction = true;
@@ -11116,18 +8081,14 @@ function deepEqual(a, b) {
 function eq(a, b, aStack, bStack) {
     // Identical objects are equal. `0 === -0`, but they aren't identical.
     // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
-    if (a === b)
-        return a !== 0 || 1 / a === 1 / b;
+    if (a === b) return a !== 0 || 1 / a === 1 / b;
     // `null` or `undefined` only equal to itself (strict comparison).
-    if (a == null || b == null)
-        return false;
+    if (a == null || b == null) return false;
     // `NaN`s are equivalent, but non-reflexive.
-    if (a !== a)
-        return b !== b;
+    if (a !== a) return b !== b;
     // Exhaust primitive checks
-    var type = typeof a;
-    if (type !== "function" && type !== "object" && typeof b != "object")
-        return false;
+    var type = typeof a === "undefined" ? "undefined" : _typeof(a);
+    if (type !== "function" && type !== "object" && (typeof b === "undefined" ? "undefined" : _typeof(b)) != "object") return false;
     return deepEq(a, b, aStack, bStack);
 }
 var toString = Object.prototype.toString;
@@ -11138,8 +8099,7 @@ function deepEq(a, b, aStack, bStack) {
     b = unwrap(b);
     // Compare `[[Class]]` names.
     var className = toString.call(a);
-    if (className !== toString.call(b))
-        return false;
+    if (className !== toString.call(b)) return false;
     switch (className) {
         // Strings, numbers, regular expressions, dates, and booleans are compared by value.
         case "[object RegExp]":
@@ -11151,8 +8111,7 @@ function deepEq(a, b, aStack, bStack) {
         case "[object Number]":
             // `NaN`s are equivalent, but non-reflexive.
             // Object(NaN) is equivalent to NaN.
-            if (+a !== +a)
-                return +b !== +b;
+            if (+a !== +a) return +b !== +b;
             // An `egal` comparison is performed for other numeric values.
             return +a === 0 ? 1 / +a === 1 / b : +a === +b;
         case "[object Date]":
@@ -11162,21 +8121,16 @@ function deepEq(a, b, aStack, bStack) {
             // of `NaN` are not equivalent.
             return +a === +b;
         case "[object Symbol]":
-            return (typeof Symbol !== "undefined" && Symbol.valueOf.call(a) === Symbol.valueOf.call(b));
+            return typeof Symbol !== "undefined" && Symbol.valueOf.call(a) === Symbol.valueOf.call(b);
     }
     var areArrays = className === "[object Array]";
     if (!areArrays) {
-        if (typeof a != "object" || typeof b != "object")
-            return false;
+        if ((typeof a === "undefined" ? "undefined" : _typeof(a)) != "object" || (typeof b === "undefined" ? "undefined" : _typeof(b)) != "object") return false;
         // Objects with different constructors are not equivalent, but `Object`s or `Array`s
         // from different frames are.
-        var aCtor = a.constructor, bCtor = b.constructor;
-        if (aCtor !== bCtor &&
-            !(typeof aCtor === "function" &&
-                aCtor instanceof aCtor &&
-                typeof bCtor === "function" &&
-                bCtor instanceof bCtor) &&
-            ("constructor" in a && "constructor" in b)) {
+        var aCtor = a.constructor,
+            bCtor = b.constructor;
+        if (aCtor !== bCtor && !(typeof aCtor === "function" && aCtor instanceof aCtor && typeof bCtor === "function" && bCtor instanceof bCtor) && "constructor" in a && "constructor" in b) {
             return false;
         }
     }
@@ -11190,8 +8144,7 @@ function deepEq(a, b, aStack, bStack) {
     while (length--) {
         // Linear search. Performance is inversely proportional to the number of
         // unique nested structures.
-        if (aStack[length] === a)
-            return bStack[length] === b;
+        if (aStack[length] === a) return bStack[length] === b;
     }
     // Add the first object to the stack of traversed objects.
     aStack.push(a);
@@ -11200,26 +8153,22 @@ function deepEq(a, b, aStack, bStack) {
     if (areArrays) {
         // Compare array lengths to determine if a deep comparison is necessary.
         length = a.length;
-        if (length !== b.length)
-            return false;
+        if (length !== b.length) return false;
         // Deep compare the contents, ignoring non-numeric properties.
         while (length--) {
-            if (!eq(a[length], b[length], aStack, bStack))
-                return false;
+            if (!eq(a[length], b[length], aStack, bStack)) return false;
         }
-    }
-    else {
+    } else {
         // Deep compare objects.
-        var keys = Object.keys(a), key;
+        var keys = Object.keys(a),
+            key;
         length = keys.length;
         // Ensure that both objects contain the same number of properties before comparing deep equality.
-        if (Object.keys(b).length !== length)
-            return false;
+        if (Object.keys(b).length !== length) return false;
         while (length--) {
             // Deep compare each member
             key = keys[length];
-            if (!(has(b, key) && eq(a[key], b[key], aStack, bStack)))
-                return false;
+            if (!(has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
         }
     }
     // Remove the first object from the stack of traversed objects.
@@ -11228,12 +8177,9 @@ function deepEq(a, b, aStack, bStack) {
     return true;
 }
 function unwrap(a) {
-    if (isObservableArray(a))
-        return a.peek();
-    if (isObservableMap(a))
-        return a.entries();
-    if (isES6Map(a))
-        return iteratorToArray(a.entries());
+    if (isObservableArray(a)) return a.peek();
+    if (isObservableMap(a)) return a.entries();
+    if (isES6Map(a)) return iteratorToArray(a.entries());
     return a;
 }
 function has(a, key) {
@@ -11261,16 +8207,14 @@ function autorun(arg1, arg2, arg3) {
         name = arg1;
         view = arg2;
         scope = arg3;
-    }
-    else {
+    } else {
         name = arg1.name || "Autorun@" + getNextId();
         view = arg1;
         scope = arg2;
     }
     invariant(typeof view === "function", getMessage("m004"));
     invariant(isAction(view) === false, getMessage("m005"));
-    if (scope)
-        view = view.bind(scope);
+    if (scope) view = view.bind(scope);
     var reaction = new Reaction(name, function () {
         this.track(reactionRunner);
     });
@@ -11287,8 +8231,7 @@ function when(arg1, arg2, arg3, arg4) {
         predicate = arg2;
         effect = arg3;
         scope = arg4;
-    }
-    else {
+    } else {
         name = "When@" + getNextId();
         predicate = arg1;
         effect = arg2;
@@ -11311,26 +8254,22 @@ function autorunAsync(arg1, arg2, arg3, arg4) {
         func = arg2;
         delay = arg3;
         scope = arg4;
-    }
-    else {
+    } else {
         name = arg1.name || "AutorunAsync@" + getNextId();
         func = arg1;
         delay = arg2;
         scope = arg3;
     }
     invariant(isAction(func) === false, getMessage("m006"));
-    if (delay === void 0)
-        delay = 1;
-    if (scope)
-        func = func.bind(scope);
+    if (delay === void 0) delay = 1;
+    if (scope) func = func.bind(scope);
     var isScheduled = false;
     var r = new Reaction(name, function () {
         if (!isScheduled) {
             isScheduled = true;
             setTimeout(function () {
                 isScheduled = false;
-                if (!r.isDisposed)
-                    r.track(reactionRunner);
+                if (!r.isDisposed) r.track(reactionRunner);
             }, delay);
         }
     });
@@ -11348,14 +8287,12 @@ function reaction(expression, effect, arg3) {
         fail(getMessage("m008"));
     }
     var opts;
-    if (typeof arg3 === "object") {
+    if ((typeof arg3 === "undefined" ? "undefined" : _typeof(arg3)) === "object") {
         opts = arg3;
-    }
-    else {
+    } else {
         opts = {};
     }
-    opts.name =
-        opts.name || expression.name || effect.name || "Reaction@" + getNextId();
+    opts.name = opts.name || expression.name || effect.name || "Reaction@" + getNextId();
     opts.fireImmediately = arg3 === true || opts.fireImmediately === true;
     opts.delay = opts.delay || 0;
     opts.compareStructural = opts.compareStructural || opts.struct || false;
@@ -11367,14 +8304,11 @@ function reaction(expression, effect, arg3) {
     var firstTime = true;
     var isScheduled = false;
     var value;
-    var equals = opts.equals
-        ? opts.equals
-        : opts.compareStructural || opts.struct ? comparer.structural : comparer.default;
+    var equals = opts.equals ? opts.equals : opts.compareStructural || opts.struct ? comparer.structural : comparer.default;
     var r = new Reaction(opts.name, function () {
         if (firstTime || opts.delay < 1) {
             reactionRunner();
-        }
-        else if (!isScheduled) {
+        } else if (!isScheduled) {
             isScheduled = true;
             setTimeout(function () {
                 isScheduled = false;
@@ -11383,20 +8317,16 @@ function reaction(expression, effect, arg3) {
         }
     });
     function reactionRunner() {
-        if (r.isDisposed)
-            return;
+        if (r.isDisposed) return;
         var changed = false;
         r.track(function () {
             var nextValue = expression(r);
             changed = firstTime || !equals(value, nextValue);
             value = nextValue;
         });
-        if (firstTime && opts.fireImmediately)
-            effect(value, r);
-        if (!firstTime && changed === true)
-            effect(value, r);
-        if (firstTime)
-            firstTime = false;
+        if (firstTime && opts.fireImmediately) effect(value, r);
+        if (!firstTime && changed === true) effect(value, r);
+        if (firstTime) firstTime = false;
     }
     r.schedule();
     return r.getDisposer();
@@ -11421,7 +8351,7 @@ function reaction(expression, effect, arg3) {
  *
  * If at any point it's outside batch and it isn't observed: reset everything and go to 1.
  */
-var ComputedValue = (function () {
+var ComputedValue = function () {
     /**
      * Create a new computed value based on a function expression.
      *
@@ -11455,8 +8385,7 @@ var ComputedValue = (function () {
         this.isRunningSetter = false;
         this.isTracing = TraceMode.NONE;
         this.name = name || "ComputedValue@" + getNextId();
-        if (setter)
-            this.setter = createAction(name + "-setter", setter);
+        if (setter) this.setter = createAction(name + "-setter", setter);
     }
     ComputedValue.prototype.onBecomeStale = function () {
         propagateMaybeChanged(this);
@@ -11478,45 +8407,34 @@ var ComputedValue = (function () {
             startBatch();
             if (shouldCompute(this)) {
                 if (this.isTracing !== TraceMode.NONE) {
-                    console.log("[mobx.trace] '" + this
-                        .name + "' is being read outside a reactive context and doing a full recompute");
+                    console.log("[mobx.trace] '" + this.name + "' is being read outside a reactive context and doing a full recompute");
                 }
                 this.value = this.computeValue(false);
             }
             endBatch();
-        }
-        else {
+        } else {
             reportObserved(this);
-            if (shouldCompute(this))
-                if (this.trackAndCompute())
-                    propagateChangeConfirmed(this);
+            if (shouldCompute(this)) if (this.trackAndCompute()) propagateChangeConfirmed(this);
         }
         var result = this.value;
-        if (isCaughtException(result))
-            throw result.cause;
+        if (isCaughtException(result)) throw result.cause;
         return result;
     };
     ComputedValue.prototype.peek = function () {
         var res = this.computeValue(false);
-        if (isCaughtException(res))
-            throw res.cause;
+        if (isCaughtException(res)) throw res.cause;
         return res;
     };
     ComputedValue.prototype.set = function (value) {
         if (this.setter) {
-            invariant(!this.isRunningSetter, "The setter of computed value '" + this
-                .name + "' is trying to update itself. Did you intend to update an _observable_ value, instead of the computed property?");
+            invariant(!this.isRunningSetter, "The setter of computed value '" + this.name + "' is trying to update itself. Did you intend to update an _observable_ value, instead of the computed property?");
             this.isRunningSetter = true;
             try {
                 this.setter.call(this.scope, value);
-            }
-            finally {
+            } finally {
                 this.isRunningSetter = false;
             }
-        }
-        else
-            invariant(false, "[ComputedValue '" + this
-                .name + "'] It is not possible to assign a new value to a computed value.");
+        } else invariant(false, "[ComputedValue '" + this.name + "'] It is not possible to assign a new value to a computed value.");
     };
     ComputedValue.prototype.trackAndCompute = function () {
         if (isSpyEnabled()) {
@@ -11527,13 +8445,10 @@ var ComputedValue = (function () {
             });
         }
         var oldValue = this.value;
-        var wasSuspended = 
-        /* see #1208 */ this.dependenciesState === IDerivationState.NOT_TRACKING;
-        var newValue = (this.value = this.computeValue(true));
-        return (wasSuspended ||
-            isCaughtException(oldValue) ||
-            isCaughtException(newValue) ||
-            !this.equals(oldValue, newValue));
+        var wasSuspended =
+        /* see #1208 */this.dependenciesState === IDerivationState.NOT_TRACKING;
+        var newValue = this.value = this.computeValue(true);
+        return wasSuspended || isCaughtException(oldValue) || isCaughtException(newValue) || !this.equals(oldValue, newValue);
     };
     ComputedValue.prototype.computeValue = function (track) {
         this.isComputing = true;
@@ -11541,12 +8456,10 @@ var ComputedValue = (function () {
         var res;
         if (track) {
             res = trackDerivedFunction(this, this.derivation, this.scope);
-        }
-        else {
+        } else {
             try {
                 res = this.derivation.call(this.scope);
-            }
-            catch (e) {
+            } catch (e) {
                 res = new CaughtException(e);
             }
         }
@@ -11585,25 +8498,20 @@ var ComputedValue = (function () {
     };
     ComputedValue.prototype.whyRun = function () {
         var isTracking = Boolean(globalState.trackingDerivation);
-        var observing = unique(this.isComputing ? this.newObserving : this.observing).map(function (dep) { return dep.name; });
-        var observers = unique(getObservers(this).map(function (dep) { return dep.name; }));
-        return ("\nWhyRun? computation '" + this.name + "':\n * Running because: " + (isTracking
-            ? "[active] the value of this computation is needed by a reaction"
-            : this.isComputing
-                ? "[get] The value of this computed was requested outside a reaction"
-                : "[idle] not running at the moment") + "\n" +
-            (this.dependenciesState === IDerivationState.NOT_TRACKING
-                ? getMessage("m032")
-                : " * This computation will re-run if any of the following observables changes:\n    " + joinStrings(observing) + "\n    " + (this.isComputing && isTracking
-                    ? " (... or any observable accessed during the remainder of the current run)"
-                    : "") + "\n    " + getMessage("m038") + "\n\n  * If the outcome of this computation changes, the following observers will be re-run:\n    " + joinStrings(observers) + "\n"));
+        var observing = unique(this.isComputing ? this.newObserving : this.observing).map(function (dep) {
+            return dep.name;
+        });
+        var observers = unique(getObservers(this).map(function (dep) {
+            return dep.name;
+        }));
+        return "\nWhyRun? computation '" + this.name + "':\n * Running because: " + (isTracking ? "[active] the value of this computation is needed by a reaction" : this.isComputing ? "[get] The value of this computed was requested outside a reaction" : "[idle] not running at the moment") + "\n" + (this.dependenciesState === IDerivationState.NOT_TRACKING ? getMessage("m032") : " * This computation will re-run if any of the following observables changes:\n    " + joinStrings(observing) + "\n    " + (this.isComputing && isTracking ? " (... or any observable accessed during the remainder of the current run)" : "") + "\n    " + getMessage("m038") + "\n\n  * If the outcome of this computation changes, the following observers will be re-run:\n    " + joinStrings(observers) + "\n");
     };
     return ComputedValue;
-}());
+}();
 ComputedValue.prototype[primitiveSymbol()] = ComputedValue.prototype.valueOf;
 var isComputedValue = createInstanceofPredicate("ComputedValue", ComputedValue);
 
-var ObservableObjectAdministration = (function () {
+var ObservableObjectAdministration = function () {
     function ObservableObjectAdministration(target, name) {
         this.target = target;
         this.name = name;
@@ -11624,15 +8532,12 @@ var ObservableObjectAdministration = (function () {
         return registerInterceptor(this, handler);
     };
     return ObservableObjectAdministration;
-}());
+}();
 function asObservableObject(target, name) {
-    if (isObservableObject(target) && target.hasOwnProperty("$mobx"))
-        return target.$mobx;
+    if (isObservableObject(target) && target.hasOwnProperty("$mobx")) return target.$mobx;
     invariant(Object.isExtensible(target), getMessage("m035"));
-    if (!isPlainObject(target))
-        name = (target.constructor.name || "ObservableObject") + "@" + getNextId();
-    if (!name)
-        name = "ObservableObject@" + getNextId();
+    if (!isPlainObject(target)) name = (target.constructor.name || "ObservableObject") + "@" + getNextId();
+    if (!name) name = "ObservableObject@" + getNextId();
     var adm = new ObservableObjectAdministration(target, name);
     addHiddenFinalProp(target, "$mobx", adm);
     return adm;
@@ -11651,20 +8556,16 @@ function defineObservablePropertyFromDescriptor(adm, propName, descriptor, defau
             // x : ref(someValue)
             var modifierDescriptor = descriptor.value;
             defineObservableProperty(adm, propName, modifierDescriptor.initialValue, modifierDescriptor.enhancer);
-        }
-        else if (isAction(descriptor.value) && descriptor.value.autoBind === true) {
+        } else if (isAction(descriptor.value) && descriptor.value.autoBind === true) {
             defineBoundAction(adm.target, propName, descriptor.value.originalFn);
-        }
-        else if (isComputedValue(descriptor.value)) {
+        } else if (isComputedValue(descriptor.value)) {
             // x: computed(someExpr)
             defineComputedPropertyFromComputedValue(adm, propName, descriptor.value);
-        }
-        else {
+        } else {
             // x: someValue
             defineObservableProperty(adm, propName, descriptor.value, defaultEnhancer);
         }
-    }
-    else {
+    } else {
         // get x() { return 3 } set x(v) { }
         defineComputedProperty(adm, propName, descriptor.get, descriptor.set, comparer.default, true);
     }
@@ -11678,18 +8579,16 @@ function defineObservableProperty(adm, propName, newValue, enhancer) {
             type: "add",
             newValue: newValue
         });
-        if (!change)
-            return;
+        if (!change) return;
         newValue = change.newValue;
     }
-    var observable = (adm.values[propName] = new ObservableValue(newValue, enhancer, adm.name + "." + propName, false));
+    var observable = adm.values[propName] = new ObservableValue(newValue, enhancer, adm.name + "." + propName, false);
     newValue = observable.value; // observableValue might have changed it
     Object.defineProperty(adm.target, propName, generateObservablePropConfig(propName));
     notifyPropertyAddition(adm, adm.target, propName, newValue);
 }
 function defineComputedProperty(adm, propName, getter, setter, equals, asInstanceProperty) {
-    if (asInstanceProperty)
-        assertPropertyConfigurable(adm.target, propName);
+    if (asInstanceProperty) assertPropertyConfigurable(adm.target, propName);
     adm.values[propName] = new ComputedValue(getter, adm.target, equals, adm.name + "." + propName, setter);
     if (asInstanceProperty) {
         Object.defineProperty(adm.target, propName, generateComputedPropConfig(propName));
@@ -11698,38 +8597,35 @@ function defineComputedProperty(adm, propName, getter, setter, equals, asInstanc
 function defineComputedPropertyFromComputedValue(adm, propName, computedValue) {
     var name = adm.name + "." + propName;
     computedValue.name = name;
-    if (!computedValue.scope)
-        computedValue.scope = adm.target;
+    if (!computedValue.scope) computedValue.scope = adm.target;
     adm.values[propName] = computedValue;
     Object.defineProperty(adm.target, propName, generateComputedPropConfig(propName));
 }
 var observablePropertyConfigs = {};
 var computedPropertyConfigs = {};
 function generateObservablePropConfig(propName) {
-    return (observablePropertyConfigs[propName] ||
-        (observablePropertyConfigs[propName] = {
-            configurable: true,
-            enumerable: true,
-            get: function () {
-                return this.$mobx.values[propName].get();
-            },
-            set: function (v) {
-                setPropertyValue(this, propName, v);
-            }
-        }));
+    return observablePropertyConfigs[propName] || (observablePropertyConfigs[propName] = {
+        configurable: true,
+        enumerable: true,
+        get: function get() {
+            return this.$mobx.values[propName].get();
+        },
+        set: function set(v) {
+            setPropertyValue(this, propName, v);
+        }
+    });
 }
 function generateComputedPropConfig(propName) {
-    return (computedPropertyConfigs[propName] ||
-        (computedPropertyConfigs[propName] = {
-            configurable: true,
-            enumerable: false,
-            get: function () {
-                return this.$mobx.values[propName].get();
-            },
-            set: function (v) {
-                return this.$mobx.values[propName].set(v);
-            }
-        }));
+    return computedPropertyConfigs[propName] || (computedPropertyConfigs[propName] = {
+        configurable: true,
+        enumerable: false,
+        get: function get() {
+            return this.$mobx.values[propName].get();
+        },
+        set: function set(v) {
+            return this.$mobx.values[propName].set(v);
+        }
+    });
 }
 function setPropertyValue(instance, name, newValue) {
     var adm = instance.$mobx;
@@ -11742,8 +8638,7 @@ function setPropertyValue(instance, name, newValue) {
             name: name,
             newValue: newValue
         });
-        if (!change)
-            return;
+        if (!change) return;
         newValue = change.newValue;
     }
     newValue = observable.prepareNewValue(newValue);
@@ -11751,41 +8646,31 @@ function setPropertyValue(instance, name, newValue) {
     if (newValue !== UNCHANGED) {
         var notify = hasListeners(adm);
         var notifySpy = isSpyEnabled();
-        var change = notify || notifySpy
-            ? {
-                type: "update",
-                object: instance,
-                oldValue: observable.value,
-                name: name,
-                newValue: newValue
-            }
-            : null;
-        if (notifySpy)
-            spyReportStart(change);
+        var change = notify || notifySpy ? {
+            type: "update",
+            object: instance,
+            oldValue: observable.value,
+            name: name,
+            newValue: newValue
+        } : null;
+        if (notifySpy) spyReportStart(change);
         observable.setNewValue(newValue);
-        if (notify)
-            notifyListeners(adm, change);
-        if (notifySpy)
-            spyReportEnd();
+        if (notify) notifyListeners(adm, change);
+        if (notifySpy) spyReportEnd();
     }
 }
 function notifyPropertyAddition(adm, object, name, newValue) {
     var notify = hasListeners(adm);
     var notifySpy = isSpyEnabled();
-    var change = notify || notifySpy
-        ? {
-            type: "add",
-            object: object,
-            name: name,
-            newValue: newValue
-        }
-        : null;
-    if (notifySpy)
-        spyReportStart(change);
-    if (notify)
-        notifyListeners(adm, change);
-    if (notifySpy)
-        spyReportEnd();
+    var change = notify || notifySpy ? {
+        type: "add",
+        object: object,
+        name: name,
+        newValue: newValue
+    } : null;
+    if (notifySpy) spyReportStart(change);
+    if (notify) notifyListeners(adm, change);
+    if (notifySpy) spyReportEnd();
 }
 var isObservableObjectAdministration = createInstanceofPredicate("ObservableObjectAdministration", ObservableObjectAdministration);
 function isObservableObject(thing) {
@@ -11803,23 +8688,16 @@ function isObservableObject(thing) {
  * @param property if property is specified, checks whether value.property is reactive.
  */
 function isObservable(value, property) {
-    if (value === null || value === undefined)
-        return false;
+    if (value === null || value === undefined) return false;
     if (property !== undefined) {
-        if (isObservableArray(value) || isObservableMap(value))
-            throw new Error(getMessage("m019"));
-        else if (isObservableObject(value)) {
+        if (isObservableArray(value) || isObservableMap(value)) throw new Error(getMessage("m019"));else if (isObservableObject(value)) {
             var o = value.$mobx;
             return o.values && !!o.values[property];
         }
         return false;
     }
     // For first check, see #701
-    return (isObservableObject(value) ||
-        !!value.$mobx ||
-        isAtom(value) ||
-        isReaction(value) ||
-        isComputedValue(value));
+    return isObservableObject(value) || !!value.$mobx || isAtom(value) || isReaction(value) || isComputedValue(value);
 }
 
 function createDecoratorForEnhancer(enhancer) {
@@ -11832,8 +8710,7 @@ function createDecoratorForEnhancer(enhancer) {
     }, function (name) {
         var observable = this.$mobx.values[name];
         if (observable === undefined // See #505
-        )
-            return undefined;
+        ) return undefined;
         return observable.get();
     }, function (name, value) {
         setPropertyValue(this, name, value);
@@ -11856,10 +8733,10 @@ function extendShallowObservable(target) {
 }
 function extendObservableHelper(target, defaultEnhancer, properties) {
     invariant(arguments.length >= 2, getMessage("m014"));
-    invariant(typeof target === "object", getMessage("m015"));
+    invariant((typeof target === "undefined" ? "undefined" : _typeof(target)) === "object", getMessage("m015"));
     invariant(!isObservableMap(target), getMessage("m016"));
     properties.forEach(function (propSet) {
-        invariant(typeof propSet === "object", getMessage("m017"));
+        invariant((typeof propSet === "undefined" ? "undefined" : _typeof(propSet)) === "object", getMessage("m017"));
         invariant(!isObservable(propSet), getMessage("m018"));
     });
     var adm = asObservableObject(target);
@@ -11867,14 +8744,14 @@ function extendObservableHelper(target, defaultEnhancer, properties) {
     // Note could be optimised if properties.length === 1
     for (var i = properties.length - 1; i >= 0; i--) {
         var propSet = properties[i];
-        for (var key in propSet)
+        for (var key in propSet) {
             if (definedProps[key] !== true && hasOwnProperty(propSet, key)) {
                 definedProps[key] = true;
-                if (target === propSet && !isPropertyConfigurable(target, key))
-                    continue; // see #111, skip non-configurable or non-writable props for `observable(object)`.
+                if (target === propSet && !isPropertyConfigurable(target, key)) continue; // see #111, skip non-configurable or non-writable props for `observable(object)`.
                 var descriptor = Object.getOwnPropertyDescriptor(propSet, key);
                 defineObservablePropertyFromDescriptor(adm, key, descriptor, defaultEnhancer);
             }
+        }
     }
     return target;
 }
@@ -11889,57 +8766,49 @@ var refStructDecorator = createDecoratorForEnhancer(refStructEnhancer);
  * @param v the value which should become observable.
  */
 function createObservable(v) {
-    if (v === void 0) { v = undefined; }
+    if (v === void 0) {
+        v = undefined;
+    }
     // @observable someProp;
-    if (typeof arguments[1] === "string")
-        return deepDecorator.apply(null, arguments);
+    if (typeof arguments[1] === "string") return deepDecorator.apply(null, arguments);
     invariant(arguments.length <= 1, getMessage("m021"));
     invariant(!isModifierDescriptor(v), getMessage("m020"));
     // it is an observable already, done
-    if (isObservable(v))
-        return v;
+    if (isObservable(v)) return v;
     // something that can be converted and mutated?
     var res = deepEnhancer(v, undefined, undefined);
     // this value could be converted to a new observable data structure, return it
-    if (res !== v)
-        return res;
+    if (res !== v) return res;
     // otherwise, just box it
     return observable.box(v);
 }
 var observableFactories = {
-    box: function (value, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("box");
+    box: function box(value, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("box");
         return new ObservableValue(value, deepEnhancer, name);
     },
-    shallowBox: function (value, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("shallowBox");
+    shallowBox: function shallowBox(value, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("shallowBox");
         return new ObservableValue(value, referenceEnhancer, name);
     },
-    array: function (initialValues, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("array");
+    array: function array(initialValues, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("array");
         return new ObservableArray(initialValues, deepEnhancer, name);
     },
-    shallowArray: function (initialValues, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("shallowArray");
+    shallowArray: function shallowArray(initialValues, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("shallowArray");
         return new ObservableArray(initialValues, referenceEnhancer, name);
     },
-    map: function (initialValues, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("map");
+    map: function map(initialValues, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("map");
         return new ObservableMap(initialValues, deepEnhancer, name);
     },
-    shallowMap: function (initialValues, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("shallowMap");
+    shallowMap: function shallowMap(initialValues, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("shallowMap");
         return new ObservableMap(initialValues, referenceEnhancer, name);
     },
-    object: function (props, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("object");
+    object: function object(props, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("object");
         var res = {};
         // convert to observable object
         asObservableObject(res, name);
@@ -11947,64 +8816,60 @@ var observableFactories = {
         extendObservable(res, props);
         return res;
     },
-    shallowObject: function (props, name) {
-        if (arguments.length > 2)
-            incorrectlyUsedAsDecorator("shallowObject");
+    shallowObject: function shallowObject(props, name) {
+        if (arguments.length > 2) incorrectlyUsedAsDecorator("shallowObject");
         var res = {};
         asObservableObject(res, name);
         extendShallowObservable(res, props);
         return res;
     },
-    ref: function () {
+    ref: function ref() {
         if (arguments.length < 2) {
             // although ref creates actually a modifier descriptor, the type of the resultig properties
             // of the object is `T` in the end, when the descriptors are interpreted
             return createModifierDescriptor(referenceEnhancer, arguments[0]);
-        }
-        else {
+        } else {
             return refDecorator.apply(null, arguments);
         }
     },
-    shallow: function () {
+    shallow: function shallow() {
         if (arguments.length < 2) {
             // although ref creates actually a modifier descriptor, the type of the resultig properties
             // of the object is `T` in the end, when the descriptors are interpreted
             return createModifierDescriptor(shallowEnhancer, arguments[0]);
-        }
-        else {
+        } else {
             return shallowDecorator.apply(null, arguments);
         }
     },
-    deep: function () {
+    deep: function deep() {
         if (arguments.length < 2) {
             // although ref creates actually a modifier descriptor, the type of the resultig properties
             // of the object is `T` in the end, when the descriptors are interpreted
             return createModifierDescriptor(deepEnhancer, arguments[0]);
-        }
-        else {
+        } else {
             return deepDecorator.apply(null, arguments);
         }
     },
-    struct: function () {
+    struct: function struct() {
         if (arguments.length < 2) {
             // although ref creates actually a modifier descriptor, the type of the resultig properties
             // of the object is `T` in the end, when the descriptors are interpreted
             return createModifierDescriptor(deepStructEnhancer, arguments[0]);
-        }
-        else {
+        } else {
             return deepStructDecorator.apply(null, arguments);
         }
     }
 };
 var observable = createObservable;
 // weird trick to keep our typings nicely with our funcs, and still extend the observable function
-Object.keys(observableFactories).forEach(function (name) { return (observable[name] = observableFactories[name]); });
+Object.keys(observableFactories).forEach(function (name) {
+    return observable[name] = observableFactories[name];
+});
 observable.deep.struct = observable.struct;
 observable.ref.struct = function () {
     if (arguments.length < 2) {
         return createModifierDescriptor(refStructEnhancer, arguments[0]);
-    }
-    else {
+    } else {
         return refStructDecorator.apply(null, arguments);
     }
 };
@@ -12013,7 +8878,7 @@ function incorrectlyUsedAsDecorator(methodName) {
 }
 
 function isModifierDescriptor(thing) {
-    return typeof thing === "object" && thing !== null && thing.isMobxModifierDescriptor === true;
+    return (typeof thing === "undefined" ? "undefined" : _typeof(thing)) === "object" && thing !== null && thing.isMobxModifierDescriptor === true;
 }
 function createModifierDescriptor(enhancer, initialValue) {
     invariant(!isModifierDescriptor(initialValue), "Modifiers cannot be nested");
@@ -12024,33 +8889,22 @@ function createModifierDescriptor(enhancer, initialValue) {
     };
 }
 function deepEnhancer(v, _, name) {
-    if (isModifierDescriptor(v))
-        fail("You tried to assign a modifier wrapped value to a collection, please define modifiers when creating the collection, not when modifying it");
+    if (isModifierDescriptor(v)) fail("You tried to assign a modifier wrapped value to a collection, please define modifiers when creating the collection, not when modifying it");
     // it is an observable already, done
-    if (isObservable(v))
-        return v;
+    if (isObservable(v)) return v;
     // something that can be converted and mutated?
-    if (Array.isArray(v))
-        return observable.array(v, name);
-    if (isPlainObject(v))
-        return observable.object(v, name);
-    if (isES6Map(v))
-        return observable.map(v, name);
+    if (Array.isArray(v)) return observable.array(v, name);
+    if (isPlainObject(v)) return observable.object(v, name);
+    if (isES6Map(v)) return observable.map(v, name);
     return v;
 }
 function shallowEnhancer(v, _, name) {
-    if (isModifierDescriptor(v))
-        fail("You tried to assign a modifier wrapped value to a collection, please define modifiers when creating the collection, not when modifying it");
-    if (v === undefined || v === null)
-        return v;
-    if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v))
-        return v;
-    if (Array.isArray(v))
-        return observable.shallowArray(v, name);
-    if (isPlainObject(v))
-        return observable.shallowObject(v, name);
-    if (isES6Map(v))
-        return observable.shallowMap(v, name);
+    if (isModifierDescriptor(v)) fail("You tried to assign a modifier wrapped value to a collection, please define modifiers when creating the collection, not when modifying it");
+    if (v === undefined || v === null) return v;
+    if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v)) return v;
+    if (Array.isArray(v)) return observable.shallowArray(v, name);
+    if (isPlainObject(v)) return observable.shallowObject(v, name);
+    if (isES6Map(v)) return observable.shallowMap(v, name);
     return fail("The shallow modifier / decorator can only used in combination with arrays, objects and maps");
 }
 function referenceEnhancer(newValue) {
@@ -12060,16 +8914,12 @@ function referenceEnhancer(newValue) {
 function deepStructEnhancer(v, oldValue, name) {
     // don't confuse structurally compare enhancer with ref enhancer! The latter is probably
     // more suited for immutable objects
-    if (deepEqual(v, oldValue))
-        return oldValue;
+    if (deepEqual(v, oldValue)) return oldValue;
     // it is an observable already, done
-    if (isObservable(v))
-        return v;
+    if (isObservable(v)) return v;
     // something that can be converted and mutated?
-    if (Array.isArray(v))
-        return new ObservableArray(v, deepStructEnhancer, name);
-    if (isES6Map(v))
-        return new ObservableMap(v, deepStructEnhancer, name);
+    if (Array.isArray(v)) return new ObservableArray(v, deepStructEnhancer, name);
+    if (isES6Map(v)) return new ObservableMap(v, deepStructEnhancer, name);
     if (isPlainObject(v)) {
         var res = {};
         asObservableObject(res, name);
@@ -12079,8 +8929,7 @@ function deepStructEnhancer(v, oldValue, name) {
     return v;
 }
 function refStructEnhancer(v, oldValue, name) {
-    if (deepEqual(v, oldValue))
-        return oldValue;
+    if (deepEqual(v, oldValue)) return oldValue;
     return v;
 }
 
@@ -12092,21 +8941,26 @@ function refStructEnhancer(v, oldValue, name) {
  * @returns any value that was returned by the 'action' parameter.
  */
 function transaction(action, thisArg) {
-    if (thisArg === void 0) { thisArg = undefined; }
+    if (thisArg === void 0) {
+        thisArg = undefined;
+    }
     startBatch();
     try {
         return action.apply(thisArg);
-    }
-    finally {
+    } finally {
         endBatch();
     }
 }
 
 var ObservableMapMarker = {};
-var ObservableMap = (function () {
+var ObservableMap = function () {
     function ObservableMap(initialData, enhancer, name) {
-        if (enhancer === void 0) { enhancer = deepEnhancer; }
-        if (name === void 0) { name = "ObservableMap@" + getNextId(); }
+        if (enhancer === void 0) {
+            enhancer = deepEnhancer;
+        }
+        if (name === void 0) {
+            name = "ObservableMap@" + getNextId();
+        }
         this.enhancer = enhancer;
         this.name = name;
         this.$mobx = ObservableMapMarker;
@@ -12122,11 +8976,9 @@ var ObservableMap = (function () {
         return typeof this._data[key] !== "undefined";
     };
     ObservableMap.prototype.has = function (key) {
-        if (!this.isValidKey(key))
-            return false;
+        if (!this.isValidKey(key)) return false;
         key = "" + key;
-        if (this._hasMap[key])
-            return this._hasMap[key].get();
+        if (this._hasMap[key]) return this._hasMap[key].get();
         return this._updateHasMapEntry(key, false).get();
     };
     ObservableMap.prototype.set = function (key, value) {
@@ -12140,14 +8992,12 @@ var ObservableMap = (function () {
                 newValue: value,
                 name: key
             });
-            if (!change)
-                return this;
+            if (!change) return this;
             value = change.newValue;
         }
         if (hasKey) {
             this._updateValue(key, value);
-        }
-        else {
+        } else {
             this._addValue(key, value);
         }
         return this;
@@ -12162,22 +9012,18 @@ var ObservableMap = (function () {
                 object: this,
                 name: key
             });
-            if (!change)
-                return false;
+            if (!change) return false;
         }
         if (this._has(key)) {
             var notifySpy = isSpyEnabled();
             var notify = hasListeners(this);
-            var change = notify || notifySpy
-                ? {
-                    type: "delete",
-                    object: this,
-                    oldValue: this._data[key].value,
-                    name: key
-                }
-                : null;
-            if (notifySpy)
-                spyReportStart(change);
+            var change = notify || notifySpy ? {
+                type: "delete",
+                object: this,
+                oldValue: this._data[key].value,
+                name: key
+            } : null;
+            if (notifySpy) spyReportStart(change);
             transaction(function () {
                 _this._keys.remove(key);
                 _this._updateHasMapEntry(key, false);
@@ -12185,10 +9031,8 @@ var ObservableMap = (function () {
                 observable$$1.setNewValue(undefined);
                 _this._data[key] = undefined;
             });
-            if (notify)
-                notifyListeners(this, change);
-            if (notifySpy)
-                spyReportEnd();
+            if (notify) notifyListeners(this, change);
+            if (notifySpy) spyReportEnd();
             return true;
         }
         return false;
@@ -12198,8 +9042,7 @@ var ObservableMap = (function () {
         var entry = this._hasMap[key];
         if (entry) {
             entry.setNewValue(value);
-        }
-        else {
+        } else {
             entry = this._hasMap[key] = new ObservableValue(value, referenceEnhancer, this.name + "." + key + "?", false);
         }
         return entry;
@@ -12210,53 +9053,42 @@ var ObservableMap = (function () {
         if (newValue !== UNCHANGED) {
             var notifySpy = isSpyEnabled();
             var notify = hasListeners(this);
-            var change = notify || notifySpy
-                ? {
-                    type: "update",
-                    object: this,
-                    oldValue: observable$$1.value,
-                    name: name,
-                    newValue: newValue
-                }
-                : null;
-            if (notifySpy)
-                spyReportStart(change);
+            var change = notify || notifySpy ? {
+                type: "update",
+                object: this,
+                oldValue: observable$$1.value,
+                name: name,
+                newValue: newValue
+            } : null;
+            if (notifySpy) spyReportStart(change);
             observable$$1.setNewValue(newValue);
-            if (notify)
-                notifyListeners(this, change);
-            if (notifySpy)
-                spyReportEnd();
+            if (notify) notifyListeners(this, change);
+            if (notifySpy) spyReportEnd();
         }
     };
     ObservableMap.prototype._addValue = function (name, newValue) {
         var _this = this;
         transaction(function () {
-            var observable$$1 = (_this._data[name] = new ObservableValue(newValue, _this.enhancer, _this.name + "." + name, false));
+            var observable$$1 = _this._data[name] = new ObservableValue(newValue, _this.enhancer, _this.name + "." + name, false);
             newValue = observable$$1.value; // value might have been changed
             _this._updateHasMapEntry(name, true);
             _this._keys.push(name);
         });
         var notifySpy = isSpyEnabled();
         var notify = hasListeners(this);
-        var change = notify || notifySpy
-            ? {
-                type: "add",
-                object: this,
-                name: name,
-                newValue: newValue
-            }
-            : null;
-        if (notifySpy)
-            spyReportStart(change);
-        if (notify)
-            notifyListeners(this, change);
-        if (notifySpy)
-            spyReportEnd();
+        var change = notify || notifySpy ? {
+            type: "add",
+            object: this,
+            name: name,
+            newValue: newValue
+        } : null;
+        if (notifySpy) spyReportStart(change);
+        if (notify) notifyListeners(this, change);
+        if (notifySpy) spyReportEnd();
     };
     ObservableMap.prototype.get = function (key) {
         key = "" + key;
-        if (this.has(key))
-            return this.dehanceValue(this._data[key].get());
+        if (this.has(key)) return this.dehanceValue(this._data[key].get());
         return this.dehanceValue(undefined);
     };
     ObservableMap.prototype.dehanceValue = function (value) {
@@ -12273,11 +9105,15 @@ var ObservableMap = (function () {
     };
     ObservableMap.prototype.entries = function () {
         var _this = this;
-        return arrayAsIterator(this._keys.map(function (key) { return [key, _this.get(key)]; }));
+        return arrayAsIterator(this._keys.map(function (key) {
+            return [key, _this.get(key)];
+        }));
     };
     ObservableMap.prototype.forEach = function (callback, thisArg) {
         var _this = this;
-        this.keys().forEach(function (key) { return callback.call(thisArg, _this.get(key), key, _this); });
+        this.keys().forEach(function (key) {
+            return callback.call(thisArg, _this.get(key), key, _this);
+        });
     };
     /** Merge another object into this object, returns this. */
     ObservableMap.prototype.merge = function (other) {
@@ -12286,17 +9122,15 @@ var ObservableMap = (function () {
             other = other.toJS();
         }
         transaction(function () {
-            if (isPlainObject(other))
-                Object.keys(other).forEach(function (key) { return _this.set(key, other[key]); });
-            else if (Array.isArray(other))
-                other.forEach(function (_a) {
-                    var key = _a[0], value = _a[1];
-                    return _this.set(key, value);
-                });
-            else if (isES6Map(other))
-                other.forEach(function (value, key) { return _this.set(key, value); });
-            else if (other !== null && other !== undefined)
-                fail("Cannot initialize map from " + other);
+            if (isPlainObject(other)) Object.keys(other).forEach(function (key) {
+                return _this.set(key, other[key]);
+            });else if (Array.isArray(other)) other.forEach(function (_a) {
+                var key = _a[0],
+                    value = _a[1];
+                return _this.set(key, value);
+            });else if (isES6Map(other)) other.forEach(function (value, key) {
+                return _this.set(key, value);
+            });else if (other !== null && other !== undefined) fail("Cannot initialize map from " + other);
         });
         return this;
     };
@@ -12316,14 +9150,18 @@ var ObservableMap = (function () {
             // this will cause reactions only on changed values
             var newKeys = getMapLikeKeys(values);
             var oldKeys = _this.keys();
-            var missingKeys = oldKeys.filter(function (k) { return newKeys.indexOf(k) === -1; });
-            missingKeys.forEach(function (k) { return _this.delete(k); });
+            var missingKeys = oldKeys.filter(function (k) {
+                return newKeys.indexOf(k) === -1;
+            });
+            missingKeys.forEach(function (k) {
+                return _this.delete(k);
+            });
             _this.merge(values);
         });
         return this;
     };
     Object.defineProperty(ObservableMap.prototype, "size", {
-        get: function () {
+        get: function get() {
             return this._keys.length;
         },
         enumerable: true,
@@ -12336,7 +9174,9 @@ var ObservableMap = (function () {
     ObservableMap.prototype.toJS = function () {
         var _this = this;
         var res = {};
-        this.keys().forEach(function (key) { return (res[key] = _this.get(key)); });
+        this.keys().forEach(function (key) {
+            return res[key] = _this.get(key);
+        });
         return res;
     };
     ObservableMap.prototype.toJSON = function () {
@@ -12344,22 +9184,18 @@ var ObservableMap = (function () {
         return this.toJS();
     };
     ObservableMap.prototype.isValidKey = function (key) {
-        if (key === null || key === undefined)
-            return false;
-        if (typeof key === "string" || typeof key === "number" || typeof key === "boolean")
-            return true;
+        if (key === null || key === undefined) return false;
+        if (typeof key === "string" || typeof key === "number" || typeof key === "boolean") return true;
         return false;
     };
     ObservableMap.prototype.assertValidKey = function (key) {
-        if (!this.isValidKey(key))
-            throw new Error("[mobx.map] Invalid key: '" + key + "', only strings, numbers and booleans are accepted as key in observable maps.");
+        if (!this.isValidKey(key)) throw new Error("[mobx.map] Invalid key: '" + key + "', only strings, numbers and booleans are accepted as key in observable maps.");
     };
     ObservableMap.prototype.toString = function () {
         var _this = this;
-        return (this.name +
-            "[{ " +
-            this.keys().map(function (key) { return key + ": " + ("" + _this.get(key)); }).join(", ") +
-            " }]");
+        return this.name + "[{ " + this.keys().map(function (key) {
+            return key + ": " + ("" + _this.get(key));
+        }).join(", ") + " }]";
     };
     /**
      * Observes this object. Triggers for the events 'add', 'update' and 'delete'.
@@ -12374,7 +9210,7 @@ var ObservableMap = (function () {
         return registerInterceptor(this, handler);
     };
     return ObservableMap;
-}());
+}();
 declareIterator(ObservableMap.prototype, function () {
     return this.entries();
 });
@@ -12398,8 +9234,7 @@ function fail(message, thing) {
     throw "X"; // unreachable
 }
 function invariant(check, message, thing) {
-    if (!check)
-        throw new Error("[mobx] Invariant failed: " + message + (thing ? " in '" + thing + "'" : ""));
+    if (!check) throw new Error("[mobx] Invariant failed: " + message + (thing ? " in '" + thing + "'" : ""));
 }
 /**
  * Prints a deprecation message, but only one time.
@@ -12407,8 +9242,7 @@ function invariant(check, message, thing) {
  */
 var deprecatedMessages = [];
 function deprecated(msg) {
-    if (deprecatedMessages.indexOf(msg) !== -1)
-        return false;
+    if (deprecatedMessages.indexOf(msg) !== -1) return false;
     deprecatedMessages.push(msg);
     console.error("[mobx] Deprecated: " + msg);
     return true;
@@ -12419,37 +9253,35 @@ function deprecated(msg) {
 function once(func) {
     var invoked = false;
     return function () {
-        if (invoked)
-            return;
+        if (invoked) return;
         invoked = true;
         return func.apply(this, arguments);
     };
 }
-var noop = function () { };
+var noop = function noop() {};
 function unique(list) {
     var res = [];
     list.forEach(function (item) {
-        if (res.indexOf(item) === -1)
-            res.push(item);
+        if (res.indexOf(item) === -1) res.push(item);
     });
     return res;
 }
 function joinStrings(things, limit, separator) {
-    if (limit === void 0) { limit = 100; }
-    if (separator === void 0) { separator = " - "; }
-    if (!things)
-        return "";
+    if (limit === void 0) {
+        limit = 100;
+    }
+    if (separator === void 0) {
+        separator = " - ";
+    }
+    if (!things) return "";
     var sliced = things.slice(0, limit);
-    return "" + sliced.join(separator) + (things.length > limit
-        ? " (... and " + (things.length - limit) + "more)"
-        : "");
+    return "" + sliced.join(separator) + (things.length > limit ? " (... and " + (things.length - limit) + "more)" : "");
 }
 function isObject(value) {
-    return value !== null && typeof value === "object";
+    return value !== null && (typeof value === "undefined" ? "undefined" : _typeof(value)) === "object";
 }
 function isPlainObject(value) {
-    if (value === null || typeof value !== "object")
-        return false;
+    if (value === null || (typeof value === "undefined" ? "undefined" : _typeof(value)) !== "object") return false;
     var proto = Object.getPrototypeOf(value);
     return proto === Object.prototype || proto === null;
 }
@@ -12457,10 +9289,11 @@ function objectAssign() {
     var res = arguments[0];
     for (var i = 1, l = arguments.length; i < l; i++) {
         var source = arguments[i];
-        for (var key in source)
+        for (var key in source) {
             if (hasOwnProperty(source, key)) {
                 res[key] = source[key];
             }
+        }
     }
     return res;
 }
@@ -12491,7 +9324,7 @@ function addHiddenFinalProp(object, propName, value) {
 }
 function isPropertyConfigurable(object, prop) {
     var descriptor = Object.getOwnPropertyDescriptor(object, prop);
-    return !descriptor || (descriptor.configurable !== false && descriptor.writable !== false);
+    return !descriptor || descriptor.configurable !== false && descriptor.writable !== false;
 }
 function assertPropertyConfigurable(object, prop) {
     invariant(isPropertyConfigurable(object, prop), "Cannot make property '" + prop + "' observable, it is not configurable and writable in the target object");
@@ -12513,46 +9346,40 @@ function isArrayLike(x) {
     return Array.isArray(x) || isObservableArray(x);
 }
 function isES6Map(thing) {
-    if (getGlobal().Map !== undefined && thing instanceof getGlobal().Map)
-        return true;
+    if (getGlobal().Map !== undefined && thing instanceof getGlobal().Map) return true;
     return false;
 }
 function getMapLikeKeys(map$$1) {
-    if (isPlainObject(map$$1))
-        return Object.keys(map$$1);
-    if (Array.isArray(map$$1))
-        return map$$1.map(function (_a) {
-            var key = _a[0];
-            return key;
-        });
-    if (isES6Map(map$$1))
-        return Array.from(map$$1.keys());
-    if (isObservableMap(map$$1))
-        return map$$1.keys();
+    if (isPlainObject(map$$1)) return Object.keys(map$$1);
+    if (Array.isArray(map$$1)) return map$$1.map(function (_a) {
+        var key = _a[0];
+        return key;
+    });
+    if (isES6Map(map$$1)) return Array.from(map$$1.keys());
+    if (isObservableMap(map$$1)) return map$$1.keys();
     return fail("Cannot get keys from " + map$$1);
 }
 function iteratorToArray(it) {
     var res = [];
     while (true) {
         var r = it.next();
-        if (r.done)
-            break;
+        if (r.done) break;
         res.push(r.value);
     }
     return res;
 }
 function primitiveSymbol() {
-    return (typeof Symbol === "function" && Symbol.toPrimitive) || "@@toPrimitive";
+    return typeof Symbol === "function" && Symbol.toPrimitive || "@@toPrimitive";
 }
 function toPrimitive(value) {
-    return value === null ? null : typeof value === "object" ? "" + value : value;
+    return value === null ? null : (typeof value === "undefined" ? "undefined" : _typeof(value)) === "object" ? "" + value : value;
 }
 
 /**
  * These values will persist if global state is reset
  */
 var persistentKeys = ["mobxGuid", "resetId", "spyListeners", "strictMode", "runId"];
-var MobXGlobals = (function () {
+var MobXGlobals = function () {
     function MobXGlobals() {
         /**
          * MobXGlobals version.
@@ -12619,7 +9446,7 @@ var MobXGlobals = (function () {
         this.globalReactionErrorHandlers = [];
     }
     return MobXGlobals;
-}());
+}();
 var globalState = new MobXGlobals();
 var shareGlobalStateCalled = false;
 var runInIsolationCalled = false;
@@ -12628,8 +9455,7 @@ var warnedAboutMultipleInstances = false;
     var global_1 = getGlobal();
     if (!global_1.__mobxInstanceCount) {
         global_1.__mobxInstanceCount = 1;
-    }
-    else {
+    } else {
         global_1.__mobxInstanceCount++;
         setTimeout(function () {
             if (!shareGlobalStateCalled && !runInIsolationCalled && !warnedAboutMultipleInstances) {
@@ -12652,14 +9478,9 @@ function shareGlobalState() {
     /**
      * Backward compatibility check
      */
-    if (global.__mobservableTrackingStack || global.__mobservableViewStack)
-        throw new Error("[mobx] An incompatible version of mobservable is already loaded.");
-    if (global.__mobxGlobal && global.__mobxGlobal.version !== ownState.version)
-        throw new Error("[mobx] An incompatible version of mobx is already loaded.");
-    if (global.__mobxGlobal)
-        globalState = global.__mobxGlobal;
-    else
-        global.__mobxGlobal = ownState;
+    if (global.__mobservableTrackingStack || global.__mobservableViewStack) throw new Error("[mobx] An incompatible version of mobservable is already loaded.");
+    if (global.__mobxGlobal && global.__mobxGlobal.version !== ownState.version) throw new Error("[mobx] An incompatible version of mobx is already loaded.");
+    if (global.__mobxGlobal) globalState = global.__mobxGlobal;else global.__mobxGlobal = ownState;
 }
 function getGlobalState() {
     return globalState;
@@ -12672,33 +9493,29 @@ function getGlobalState() {
 function resetGlobalState() {
     globalState.resetId++;
     var defaultGlobals = new MobXGlobals();
-    for (var key in defaultGlobals)
-        if (persistentKeys.indexOf(key) === -1)
-            globalState[key] = defaultGlobals[key];
-    globalState.allowStateChanges = !globalState.strictMode;
+    for (var key in defaultGlobals) {
+        if (persistentKeys.indexOf(key) === -1) globalState[key] = defaultGlobals[key];
+    }globalState.allowStateChanges = !globalState.strictMode;
 }
 
 function getAtom(thing, property) {
-    if (typeof thing === "object" && thing !== null) {
+    if ((typeof thing === "undefined" ? "undefined" : _typeof(thing)) === "object" && thing !== null) {
         if (isObservableArray(thing)) {
             invariant(property === undefined, getMessage("m036"));
             return thing.$mobx.atom;
         }
         if (isObservableMap(thing)) {
             var anyThing = thing;
-            if (property === undefined)
-                return getAtom(anyThing._keys);
+            if (property === undefined) return getAtom(anyThing._keys);
             var observable = anyThing._data[property] || anyThing._hasMap[property];
             invariant(!!observable, "the entry '" + property + "' does not exist in the observable map '" + getDebugName(thing) + "'");
             return observable;
         }
         // Initializers run lazily when transpiling to babel, so make sure they are run...
         runLazyInitializers(thing);
-        if (property && !thing.$mobx)
-            thing[property]; // See #1072 // TODO: remove in 4.0
+        if (property && !thing.$mobx) thing[property]; // See #1072 // TODO: remove in 4.0
         if (isObservableObject(thing)) {
-            if (!property)
-                return fail("please specify a property");
+            if (!property) return fail("please specify a property");
             var observable = thing.$mobx.values[property];
             invariant(!!observable, "no observable property '" + property + "' found on the observable object '" + getDebugName(thing) + "'");
             return observable;
@@ -12706,8 +9523,7 @@ function getAtom(thing, property) {
         if (isAtom(thing) || isComputedValue(thing) || isReaction(thing)) {
             return thing;
         }
-    }
-    else if (typeof thing === "function") {
+    } else if (typeof thing === "function") {
         if (isReaction(thing.$mobx)) {
             // disposer function
             return thing.$mobx;
@@ -12717,26 +9533,17 @@ function getAtom(thing, property) {
 }
 function getAdministration(thing, property) {
     invariant(thing, "Expecting some object");
-    if (property !== undefined)
-        return getAdministration(getAtom(thing, property));
-    if (isAtom(thing) || isComputedValue(thing) || isReaction(thing))
-        return thing;
-    if (isObservableMap(thing))
-        return thing;
+    if (property !== undefined) return getAdministration(getAtom(thing, property));
+    if (isAtom(thing) || isComputedValue(thing) || isReaction(thing)) return thing;
+    if (isObservableMap(thing)) return thing;
     // Initializers run lazily when transpiling to babel, so make sure they are run...
     runLazyInitializers(thing);
-    if (thing.$mobx)
-        return thing.$mobx;
+    if (thing.$mobx) return thing.$mobx;
     invariant(false, "Cannot obtain administration from " + thing);
 }
 function getDebugName(thing, property) {
     var named;
-    if (property !== undefined)
-        named = getAtom(thing, property);
-    else if (isObservableObject(thing) || isObservableMap(thing))
-        named = getAdministration(thing);
-    else
-        named = getAtom(thing); // valid for arrays as well
+    if (property !== undefined) named = getAtom(thing, property);else if (isObservableObject(thing) || isObservableMap(thing)) named = getAdministration(thing);else named = getAtom(thing); // valid for arrays as well
     return named.name;
 }
 
@@ -12747,8 +9554,7 @@ function nodeToDependencyTree(node) {
     var result = {
         name: node.name
     };
-    if (node.observing && node.observing.length > 0)
-        result.dependencies = unique(node.observing).map(nodeToDependencyTree);
+    if (node.observing && node.observing.length > 0) result.dependencies = unique(node.observing).map(nodeToDependencyTree);
     return result;
 }
 function getObserverTree(thing, property) {
@@ -12758,8 +9564,7 @@ function nodeToObserverTree(node) {
     var result = {
         name: node.name
     };
-    if (hasObservers(node))
-        result.observers = getObservers(node).map(nodeToObserverTree);
+    if (hasObservers(node)) result.observers = getObservers(node).map(nodeToObserverTree);
     return result;
 }
 
@@ -12779,8 +9584,7 @@ function addObserver(observable, node) {
         observable.observersIndexes[node.__mapid] = l;
     }
     observable.observers[l] = node;
-    if (observable.lowestObserverState > node.dependenciesState)
-        observable.lowestObserverState = node.dependenciesState;
+    if (observable.lowestObserverState > node.dependenciesState) observable.lowestObserverState = node.dependenciesState;
     // invariantObservers(observable);
     // invariant(observable._observers.indexOf(node) !== -1, "INTERNAL ERROR didn't add node");
 }
@@ -12792,8 +9596,7 @@ function removeObserver(observable, node) {
         // deleting last observer
         observable.observers.length = 0;
         queueForUnobservation(observable);
-    }
-    else {
+    } else {
         // deleting from _observersIndexes is straight forward, to delete from _observers, let's swap `node` with last element
         var list = observable.observers;
         var map = observable.observersIndexes;
@@ -12804,8 +9607,7 @@ function removeObserver(observable, node) {
             if (index) {
                 // map store all indexes but 0, see comment in `addObserver`
                 map[filler.__mapid] = index;
-            }
-            else {
+            } else {
                 delete map[filler.__mapid];
             }
             list[index] = filler;
@@ -12859,8 +9661,7 @@ function reportObserved(observable) {
             observable.lastAccessedBy = derivation.runId;
             derivation.newObserving[derivation.unboundDepsCount++] = observable;
         }
-    }
-    else if (observable.observers.length === 0) {
+    } else if (observable.observers.length === 0) {
         queueForUnobservation(observable);
     }
 }
@@ -12874,8 +9675,7 @@ function reportObserved(observable) {
 // Called by Atom when its value changes
 function propagateChanged(observable) {
     // invariantLOS(observable, "changed start");
-    if (observable.lowestObserverState === IDerivationState.STALE)
-        return;
+    if (observable.lowestObserverState === IDerivationState.STALE) return;
     observable.lowestObserverState = IDerivationState.STALE;
     var observers = observable.observers;
     var i = observers.length;
@@ -12894,26 +9694,21 @@ function propagateChanged(observable) {
 // Called by ComputedValue when it recalculate and its value changed
 function propagateChangeConfirmed(observable) {
     // invariantLOS(observable, "confirmed start");
-    if (observable.lowestObserverState === IDerivationState.STALE)
-        return;
+    if (observable.lowestObserverState === IDerivationState.STALE) return;
     observable.lowestObserverState = IDerivationState.STALE;
     var observers = observable.observers;
     var i = observers.length;
     while (i--) {
         var d = observers[i];
-        if (d.dependenciesState === IDerivationState.POSSIBLY_STALE)
-            d.dependenciesState = IDerivationState.STALE;
-        else if (d.dependenciesState === IDerivationState.UP_TO_DATE // this happens during computing of `d`, just keep lowestObserverState up to date.
-        )
-            observable.lowestObserverState = IDerivationState.UP_TO_DATE;
+        if (d.dependenciesState === IDerivationState.POSSIBLY_STALE) d.dependenciesState = IDerivationState.STALE;else if (d.dependenciesState === IDerivationState.UP_TO_DATE // this happens during computing of `d`, just keep lowestObserverState up to date.
+        ) observable.lowestObserverState = IDerivationState.UP_TO_DATE;
     }
     // invariantLOS(observable, "confirmed end");
 }
 // Used by computed when its dependency changed, but we don't wan't to immediately recompute.
 function propagateMaybeChanged(observable) {
     // invariantLOS(observable, "maybe start");
-    if (observable.lowestObserverState !== IDerivationState.UP_TO_DATE)
-        return;
+    if (observable.lowestObserverState !== IDerivationState.UP_TO_DATE) return;
     observable.lowestObserverState = IDerivationState.POSSIBLY_STALE;
     var observers = observable.observers;
     var i = observers.length;
@@ -12944,8 +9739,9 @@ function printDepTree(tree, lines, depth) {
         return;
     }
     lines.push("" + new Array(depth).join("\t") + tree.name); // MWE: not the fastest, but the easiest way :)
-    if (tree.dependencies)
-        tree.dependencies.forEach(function (child) { return printDepTree(child, lines, depth + 1); });
+    if (tree.dependencies) tree.dependencies.forEach(function (child) {
+        return printDepTree(child, lines, depth + 1);
+    });
 }
 
 var IDerivationState;
@@ -12967,20 +9763,20 @@ var IDerivationState;
     // A shallow dependency has changed since last computation and the derivation
     // will need to recompute when it's needed next.
     IDerivationState[IDerivationState["STALE"] = 2] = "STALE";
-})(IDerivationState || (IDerivationState = {}));
+})(IDerivationState || (exports.IDerivationState = IDerivationState = {}));
 var TraceMode;
 (function (TraceMode) {
     TraceMode[TraceMode["NONE"] = 0] = "NONE";
     TraceMode[TraceMode["LOG"] = 1] = "LOG";
     TraceMode[TraceMode["BREAK"] = 2] = "BREAK";
 })(TraceMode || (TraceMode = {}));
-var CaughtException = (function () {
+var CaughtException = function () {
     function CaughtException(cause) {
         this.cause = cause;
         // Empty
     }
     return CaughtException;
-}());
+}();
 function isCaughtException(e) {
     return e instanceof CaughtException;
 }
@@ -13002,32 +9798,33 @@ function shouldCompute(derivation) {
         case IDerivationState.NOT_TRACKING:
         case IDerivationState.STALE:
             return true;
-        case IDerivationState.POSSIBLY_STALE: {
-            var prevUntracked = untrackedStart(); // no need for those computeds to be reported, they will be picked up in trackDerivedFunction.
-            var obs = derivation.observing, l = obs.length;
-            for (var i = 0; i < l; i++) {
-                var obj = obs[i];
-                if (isComputedValue(obj)) {
-                    try {
-                        obj.get();
-                    }
-                    catch (e) {
-                        // we are not interested in the value *or* exception at this moment, but if there is one, notify all
-                        untrackedEnd(prevUntracked);
-                        return true;
-                    }
-                    // if ComputedValue `obj` actually changed it will be computed and propagated to its observers.
-                    // and `derivation` is an observer of `obj`
-                    if (derivation.dependenciesState === IDerivationState.STALE) {
-                        untrackedEnd(prevUntracked);
-                        return true;
+        case IDerivationState.POSSIBLY_STALE:
+            {
+                var prevUntracked = untrackedStart(); // no need for those computeds to be reported, they will be picked up in trackDerivedFunction.
+                var obs = derivation.observing,
+                    l = obs.length;
+                for (var i = 0; i < l; i++) {
+                    var obj = obs[i];
+                    if (isComputedValue(obj)) {
+                        try {
+                            obj.get();
+                        } catch (e) {
+                            // we are not interested in the value *or* exception at this moment, but if there is one, notify all
+                            untrackedEnd(prevUntracked);
+                            return true;
+                        }
+                        // if ComputedValue `obj` actually changed it will be computed and propagated to its observers.
+                        // and `derivation` is an observer of `obj`
+                        if (derivation.dependenciesState === IDerivationState.STALE) {
+                            untrackedEnd(prevUntracked);
+                            return true;
+                        }
                     }
                 }
+                changeDependenciesStateTo0(derivation);
+                untrackedEnd(prevUntracked);
+                return false;
             }
-            changeDependenciesStateTo0(derivation);
-            untrackedEnd(prevUntracked);
-            return false;
-        }
     }
 }
 function isComputingDerivation() {
@@ -13036,11 +9833,9 @@ function isComputingDerivation() {
 function checkIfStateModificationsAreAllowed(atom) {
     var hasObservers$$1 = atom.observers.length > 0;
     // Should never be possible to change an observed observable from inside computed, see #798
-    if (globalState.computationDepth > 0 && hasObservers$$1)
-        fail(getMessage("m031") + atom.name);
+    if (globalState.computationDepth > 0 && hasObservers$$1) fail(getMessage("m031") + atom.name);
     // Should not be possible to change observed state outside strict mode, except during initialization, see #563
-    if (!globalState.allowStateChanges && hasObservers$$1)
-        fail(getMessage(globalState.strictMode ? "m030a" : "m030b") + atom.name);
+    if (!globalState.allowStateChanges && hasObservers$$1) fail(getMessage(globalState.strictMode ? "m030a" : "m030b") + atom.name);
 }
 /**
  * Executes the provided function `f` and tracks which observables are being accessed.
@@ -13059,8 +9854,7 @@ function trackDerivedFunction(derivation, f, context) {
     var result;
     try {
         result = f.call(context);
-    }
-    catch (e) {
+    } catch (e) {
         result = new CaughtException(e);
     }
     globalState.trackingDerivation = prevTracking;
@@ -13075,18 +9869,18 @@ function trackDerivedFunction(derivation, f, context) {
 function bindDependencies(derivation) {
     // invariant(derivation.dependenciesState !== IDerivationState.NOT_TRACKING, "INTERNAL ERROR bindDependencies expects derivation.dependenciesState !== -1");
     var prevObserving = derivation.observing;
-    var observing = (derivation.observing = derivation.newObserving);
+    var observing = derivation.observing = derivation.newObserving;
     var lowestNewObservingDerivationState = IDerivationState.UP_TO_DATE;
     // Go through all new observables and check diffValue: (this list can contain duplicates):
     //   0: first occurrence, change to 1 and keep it
     //   1: extra occurrence, drop it
-    var i0 = 0, l = derivation.unboundDepsCount;
+    var i0 = 0,
+        l = derivation.unboundDepsCount;
     for (var i = 0; i < l; i++) {
         var dep = observing[i];
         if (dep.diffValue === 0) {
             dep.diffValue = 1;
-            if (i0 !== i)
-                observing[i0] = dep;
+            if (i0 !== i) observing[i0] = dep;
             i0++;
         }
         // Upcast is 'safe' here, because if dep is IObservable, `dependenciesState` will be undefined,
@@ -13130,9 +9924,9 @@ function clearObserving(derivation) {
     var obs = derivation.observing;
     derivation.observing = [];
     var i = obs.length;
-    while (i--)
+    while (i--) {
         removeObserver(obs[i], derivation);
-    derivation.dependenciesState = IDerivationState.NOT_TRACKING;
+    }derivation.dependenciesState = IDerivationState.NOT_TRACKING;
 }
 function untracked(action) {
     var prev = untrackedStart();
@@ -13153,13 +9947,13 @@ function untrackedEnd(prev) {
  *
  */
 function changeDependenciesStateTo0(derivation) {
-    if (derivation.dependenciesState === IDerivationState.UP_TO_DATE)
-        return;
+    if (derivation.dependenciesState === IDerivationState.UP_TO_DATE) return;
     derivation.dependenciesState = IDerivationState.UP_TO_DATE;
     var obs = derivation.observing;
     var i = obs.length;
-    while (i--)
+    while (i--) {
         obs[i].lowestObserverState = IDerivationState.UP_TO_DATE;
+    }
 }
 
 function log(msg) {
@@ -13169,10 +9963,8 @@ function log(msg) {
 function whyRun(thing, prop) {
     deprecated("`whyRun` is deprecated in favor of `trace`");
     thing = getAtomFromArgs(arguments);
-    if (!thing)
-        return log(getMessage("m024"));
-    if (isComputedValue(thing) || isReaction(thing))
-        return log(thing.whyRun());
+    if (!thing) return log(getMessage("m024"));
+    if (isComputedValue(thing) || isReaction(thing)) return log(thing.whyRun());
     return fail(getMessage("m025"));
 }
 function trace() {
@@ -13181,8 +9973,7 @@ function trace() {
         args[_i] = arguments[_i];
     }
     var enterBreakPoint = false;
-    if (typeof args[args.length - 1] === "boolean")
-        enterBreakPoint = args.pop();
+    if (typeof args[args.length - 1] === "boolean") enterBreakPoint = args.pop();
     var derivation = getAtomFromArgs(args);
     if (!derivation) {
         return fail("'trace(break?)' can only be used inside a tracked computed value or a Reaction. Consider passing in the computed value or reaction explicitly");
@@ -13203,9 +9994,11 @@ function getAtomFromArgs(args) {
     }
 }
 
-var Reaction = (function () {
+var Reaction = function () {
     function Reaction(name, onInvalidate) {
-        if (name === void 0) { name = "Reaction@" + getNextId(); }
+        if (name === void 0) {
+            name = "Reaction@" + getNextId();
+        }
         this.name = name;
         this.onInvalidate = onInvalidate;
         this.observing = []; // nodes we are looking at. Our value depends on these nodes
@@ -13275,8 +10068,7 @@ var Reaction = (function () {
             // disposed during last run. Clean up everything that was bound after the dispose call.
             clearObserving(this);
         }
-        if (isCaughtException(result))
-            this.reportExceptionInDerivation(result.cause);
+        if (isCaughtException(result)) this.reportExceptionInDerivation(result.cause);
         if (notify) {
             spyReportEnd({
                 time: Date.now() - startTime
@@ -13302,7 +10094,9 @@ var Reaction = (function () {
                 object: this
             });
         }
-        globalState.globalReactionErrorHandlers.forEach(function (f) { return f(error, _this); });
+        globalState.globalReactionErrorHandlers.forEach(function (f) {
+            return f(error, _this);
+        });
     };
     Reaction.prototype.dispose = function () {
         if (!this.isDisposed) {
@@ -13325,19 +10119,19 @@ var Reaction = (function () {
         return "Reaction[" + this.name + "]";
     };
     Reaction.prototype.whyRun = function () {
-        var observing = unique(this._isRunning ? this.newObserving : this.observing).map(function (dep) { return dep.name; });
-        return "\nWhyRun? reaction '" + this.name + "':\n * Status: [" + (this.isDisposed
-            ? "stopped"
-            : this._isRunning ? "running" : this.isScheduled() ? "scheduled" : "idle") + "]\n * This reaction will re-run if any of the following observables changes:\n    " + joinStrings(observing) + "\n    " + (this._isRunning
-            ? " (... or any observable accessed during the remainder of the current run)"
-            : "") + "\n\t" + getMessage("m038") + "\n";
+        var observing = unique(this._isRunning ? this.newObserving : this.observing).map(function (dep) {
+            return dep.name;
+        });
+        return "\nWhyRun? reaction '" + this.name + "':\n * Status: [" + (this.isDisposed ? "stopped" : this._isRunning ? "running" : this.isScheduled() ? "scheduled" : "idle") + "]\n * This reaction will re-run if any of the following observables changes:\n    " + joinStrings(observing) + "\n    " + (this._isRunning ? " (... or any observable accessed during the remainder of the current run)" : "") + "\n\t" + getMessage("m038") + "\n";
     };
     Reaction.prototype.trace = function (enterBreakPoint) {
-        if (enterBreakPoint === void 0) { enterBreakPoint = false; }
+        if (enterBreakPoint === void 0) {
+            enterBreakPoint = false;
+        }
         trace(this, enterBreakPoint);
     };
     return Reaction;
-}());
+}();
 function registerErrorHandler(handler) {
     invariant(this && this.$mobx && isReaction(this.$mobx), "Invalid `this`");
     invariant(!this.$mobx.errorHandler, "Only one onErrorHandler can be registered");
@@ -13347,8 +10141,7 @@ function onReactionError(handler) {
     globalState.globalReactionErrorHandlers.push(handler);
     return function () {
         var idx = globalState.globalReactionErrorHandlers.indexOf(handler);
-        if (idx >= 0)
-            globalState.globalReactionErrorHandlers.splice(idx, 1);
+        if (idx >= 0) globalState.globalReactionErrorHandlers.splice(idx, 1);
     };
 }
 /**
@@ -13357,11 +10150,12 @@ function onReactionError(handler) {
  * until it is assumed that this is gonna be a never ending loop...
  */
 var MAX_REACTION_ITERATIONS = 100;
-var reactionScheduler = function (f) { return f(); };
+var reactionScheduler = function reactionScheduler(f) {
+    return f();
+};
 function runReactions() {
     // Trampolining, if runReactions are already running, new reactions will be picked up
-    if (globalState.inBatch > 0 || globalState.isRunningReactions)
-        return;
+    if (globalState.inBatch > 0 || globalState.isRunningReactions) return;
     reactionScheduler(runReactionsHelper);
 }
 function runReactionsHelper() {
@@ -13373,20 +10167,24 @@ function runReactionsHelper() {
     // we converge to no remaining reactions after a while.
     while (allReactions.length > 0) {
         if (++iterations === MAX_REACTION_ITERATIONS) {
-            console.error("Reaction doesn't converge to a stable state after " + MAX_REACTION_ITERATIONS + " iterations." +
-                (" Probably there is a cycle in the reactive function: " + allReactions[0]));
+            console.error("Reaction doesn't converge to a stable state after " + MAX_REACTION_ITERATIONS + " iterations." + (" Probably there is a cycle in the reactive function: " + allReactions[0]));
             allReactions.splice(0); // clear reactions
         }
         var remainingReactions = allReactions.splice(0);
-        for (var i = 0, l = remainingReactions.length; i < l; i++)
+        for (var i = 0, l = remainingReactions.length; i < l; i++) {
             remainingReactions[i].runReaction();
+        }
     }
     globalState.isRunningReactions = false;
 }
 var isReaction = createInstanceofPredicate("Reaction", Reaction);
 function setReactionScheduler(fn) {
     var baseScheduler = reactionScheduler;
-    reactionScheduler = function (f) { return fn(function () { return baseScheduler(f); }); };
+    reactionScheduler = function reactionScheduler(f) {
+        return fn(function () {
+            return baseScheduler(f);
+        });
+    };
 }
 
 function asReference(value) {
@@ -13415,8 +10213,7 @@ function createComputedDecorator(equals) {
     }, function (name) {
         var observable = this.$mobx.values[name];
         if (observable === undefined // See #505
-        )
-            return undefined;
+        ) return undefined;
         return observable.get();
     }, function (name, value) {
         this.$mobx.values[name].set(value);
@@ -13434,24 +10231,19 @@ var computed = function computed(arg1, arg2, arg3) {
     }
     invariant(typeof arg1 === "function", getMessage("m011"));
     invariant(arguments.length < 3, getMessage("m012"));
-    var opts = typeof arg2 === "object" ? arg2 : {};
+    var opts = (typeof arg2 === "undefined" ? "undefined" : _typeof(arg2)) === "object" ? arg2 : {};
     opts.setter = typeof arg2 === "function" ? arg2 : opts.setter;
-    var equals = opts.equals
-        ? opts.equals
-        : opts.compareStructural || opts.struct ? comparer.structural : comparer.default;
+    var equals = opts.equals ? opts.equals : opts.compareStructural || opts.struct ? comparer.structural : comparer.default;
     return new ComputedValue(arg1, opts.context, equals, opts.name || arg1.name || "", opts.setter);
 };
 computed.struct = computedStructDecorator;
 computed.equals = createComputedDecorator;
 
 function isComputed(value, property) {
-    if (value === null || value === undefined)
-        return false;
+    if (value === null || value === undefined) return false;
     if (property !== undefined) {
-        if (isObservableObject(value) === false)
-            return false;
-        if (!value.$mobx.values[property])
-            return false;
+        if (isObservableObject(value) === false) return false;
+        if (!value.$mobx.values[property]) return false;
         var atom = getAtom(value, property);
         return isComputedValue(atom);
     }
@@ -13459,10 +10251,7 @@ function isComputed(value, property) {
 }
 
 function observe(thing, propOrCb, cbOrFire, fireImmediately) {
-    if (typeof cbOrFire === "function")
-        return observeObservableProperty(thing, propOrCb, cbOrFire, fireImmediately);
-    else
-        return observeObservable(thing, propOrCb, cbOrFire);
+    if (typeof cbOrFire === "function") return observeObservableProperty(thing, propOrCb, cbOrFire, fireImmediately);else return observeObservable(thing, propOrCb, cbOrFire);
 }
 function observeObservable(thing, listener, fireImmediately) {
     return getAdministration(thing).observe(listener, fireImmediately);
@@ -13472,10 +10261,7 @@ function observeObservableProperty(thing, property, listener, fireImmediately) {
 }
 
 function intercept(thing, propOrHandler, handler) {
-    if (typeof handler === "function")
-        return interceptProperty(thing, propOrHandler, handler);
-    else
-        return interceptInterceptable(thing, propOrHandler);
+    if (typeof handler === "function") return interceptProperty(thing, propOrHandler, handler);else return interceptInterceptable(thing, propOrHandler);
 }
 function interceptInterceptable(thing, handler) {
     return getAdministration(thing).intercept(handler);
@@ -13499,51 +10285,55 @@ function interceptProperty(thing, property, handler) {
  *
  */
 function expr(expr, scope) {
-    if (!isComputingDerivation())
-        console.warn(getMessage("m013"));
+    if (!isComputingDerivation()) console.warn(getMessage("m013"));
     // optimization: would be more efficient if the expr itself wouldn't be evaluated first on the next change, but just a 'changed' signal would be fired
     return computed(expr, { context: scope }).get();
 }
 
 function toJS(source, detectCycles, __alreadySeen) {
-    if (detectCycles === void 0) { detectCycles = true; }
-    if (__alreadySeen === void 0) { __alreadySeen = []; }
+    if (detectCycles === void 0) {
+        detectCycles = true;
+    }
+    if (__alreadySeen === void 0) {
+        __alreadySeen = [];
+    }
     // optimization: using ES6 map would be more efficient!
     // optimization: lift this function outside toJS, this makes recursion expensive
     function cache(value) {
-        if (detectCycles)
-            __alreadySeen.push([source, value]);
+        if (detectCycles) __alreadySeen.push([source, value]);
         return value;
     }
     if (isObservable(source)) {
-        if (detectCycles && __alreadySeen === null)
-            __alreadySeen = [];
-        if (detectCycles && source !== null && typeof source === "object") {
-            for (var i = 0, l = __alreadySeen.length; i < l; i++)
-                if (__alreadySeen[i][0] === source)
-                    return __alreadySeen[i][1];
+        if (detectCycles && __alreadySeen === null) __alreadySeen = [];
+        if (detectCycles && source !== null && (typeof source === "undefined" ? "undefined" : _typeof(source)) === "object") {
+            for (var i = 0, l = __alreadySeen.length; i < l; i++) {
+                if (__alreadySeen[i][0] === source) return __alreadySeen[i][1];
+            }
         }
         if (isObservableArray(source)) {
             var res = cache([]);
-            var toAdd = source.map(function (value) { return toJS(value, detectCycles, __alreadySeen); });
+            var toAdd = source.map(function (value) {
+                return toJS(value, detectCycles, __alreadySeen);
+            });
             res.length = toAdd.length;
-            for (var i = 0, l = toAdd.length; i < l; i++)
+            for (var i = 0, l = toAdd.length; i < l; i++) {
                 res[i] = toAdd[i];
-            return res;
+            }return res;
         }
         if (isObservableObject(source)) {
             var res = cache({});
-            for (var key in source)
+            for (var key in source) {
                 res[key] = toJS(source[key], detectCycles, __alreadySeen);
-            return res;
+            }return res;
         }
         if (isObservableMap(source)) {
             var res_1 = cache({});
-            source.forEach(function (value, key) { return (res_1[key] = toJS(value, detectCycles, __alreadySeen)); });
+            source.forEach(function (value, key) {
+                return res_1[key] = toJS(value, detectCycles, __alreadySeen);
+            });
             return res_1;
         }
-        if (isObservableValue(source))
-            return toJS(source.get(), detectCycles, __alreadySeen);
+        if (isObservableValue(source)) return toJS(source.get(), detectCycles, __alreadySeen);
     }
     return source;
 }
@@ -13556,10 +10346,12 @@ function createTransformer(transformer, onCleanup) {
     // This construction is used to avoid leaking refs to the objectCache directly
     var resetId = globalState.resetId;
     // Local transformer class specifically for this transformer
-    var Transformer = (function (_super) {
+    var Transformer = function (_super) {
         __extends(Transformer, _super);
         function Transformer(sourceIdentifier, sourceObject) {
-            var _this = _super.call(this, function () { return transformer(sourceObject); }, undefined, comparer.default, "Transformer-" + transformer.name + "-" + sourceIdentifier, undefined) || this;
+            var _this = _super.call(this, function () {
+                return transformer(sourceObject);
+            }, undefined, comparer.default, "Transformer-" + transformer.name + "-" + sourceIdentifier, undefined) || this;
             _this.sourceIdentifier = sourceIdentifier;
             _this.sourceObject = sourceObject;
             return _this;
@@ -13568,11 +10360,10 @@ function createTransformer(transformer, onCleanup) {
             var lastValue = this.value;
             _super.prototype.onBecomeUnobserved.call(this);
             delete objectCache[this.sourceIdentifier];
-            if (onCleanup)
-                onCleanup(lastValue, this.sourceObject);
+            if (onCleanup) onCleanup(lastValue, this.sourceObject);
         };
         return Transformer;
-    }(ComputedValue));
+    }(ComputedValue);
     return function (object) {
         if (resetId !== globalState.resetId) {
             objectCache = {};
@@ -13580,18 +10371,15 @@ function createTransformer(transformer, onCleanup) {
         }
         var identifier = getMemoizationId(object);
         var reactiveTransformer = objectCache[identifier];
-        if (reactiveTransformer)
-            return reactiveTransformer.get();
+        if (reactiveTransformer) return reactiveTransformer.get();
         // Not in cache; create a reactive view
         reactiveTransformer = objectCache[identifier] = new Transformer(identifier, object);
         return reactiveTransformer.get();
     };
 }
 function getMemoizationId(object) {
-    if (typeof object === "string" || typeof object === "number")
-        return object;
-    if (object === null || typeof object !== "object")
-        throw new Error("[mobx] transform expected some kind of object or primitive value, got: " + object);
+    if (typeof object === "string" || typeof object === "number") return object;
+    if (object === null || (typeof object === "undefined" ? "undefined" : _typeof(object)) !== "object") throw new Error("[mobx] transform expected some kind of object or primitive value, got: " + object);
     var tid = object.$transformId;
     if (tid === undefined) {
         tid = getNextId();
@@ -13604,17 +10392,13 @@ function interceptReads(thing, propOrHandler, handler) {
     var target;
     if (isObservableMap(thing) || isObservableArray(thing) || isObservableValue(thing)) {
         target = getAdministration(thing);
-    }
-    else if (isObservableObject(thing)) {
-        if (typeof propOrHandler !== "string")
-            return fail("InterceptReads can only be used with a specific property, not with an object in general");
+    } else if (isObservableObject(thing)) {
+        if (typeof propOrHandler !== "string") return fail("InterceptReads can only be used with a specific property, not with an object in general");
         target = getAdministration(thing, propOrHandler);
-    }
-    else {
+    } else {
         return fail("Expected observable map, object or array as first array");
     }
-    if (target.dehancer !== undefined)
-        return fail("An intercept reader was already established");
+    if (target.dehancer !== undefined) return fail("An intercept reader was already established");
     target.dehancer = typeof propOrHandler === "function" ? propOrHandler : handler;
     return function () {
         target.dehancer = undefined;
@@ -13704,15 +10488,13 @@ var everything = {
     extras: extras
 };
 var warnedAboutDefaultExport = false;
-var _loop_1 = function (p) {
+var _loop_1 = function _loop_1(p) {
     var val = everything[p];
     Object.defineProperty(everything, p, {
-        get: function () {
+        get: function get() {
             if (!warnedAboutDefaultExport) {
                 warnedAboutDefaultExport = true;
-                console.warn("Using default export (`import mobx from 'mobx'`) is deprecated " +
-                    "and won’t work in mobx@4.0.0\n" +
-                    "Use `import * as mobx from 'mobx'` instead");
+                console.warn("Using default export (`import mobx from 'mobx'`) is deprecated " + "and won’t work in mobx@4.0.0\n" + "Use `import * as mobx from 'mobx'` instead");
             }
             return val;
         }
@@ -13721,13 +10503,55 @@ var _loop_1 = function (p) {
 for (var p in everything) {
     _loop_1(p);
 }
-if (typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ === "object") {
+if ((typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ === "undefined" ? "undefined" : _typeof(__MOBX_DEVTOOLS_GLOBAL_HOOK__)) === "object") {
     __MOBX_DEVTOOLS_GLOBAL_HOOK__.injectMobx({ spy: spy, extras: extras });
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (everything);
-
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/webpack/buildin/global.js")))
+exports.extras = extras;
+exports.Reaction = Reaction;
+exports.untracked = untracked;
+exports.IDerivationState = IDerivationState;
+exports.Atom = Atom;
+exports.BaseAtom = BaseAtom;
+exports.useStrict = useStrict;
+exports.isStrictModeEnabled = isStrictModeEnabled;
+exports.spy = spy;
+exports.comparer = comparer;
+exports.asReference = asReference;
+exports.asFlat = asFlat;
+exports.asStructure = asStructure;
+exports.asMap = asMap;
+exports.isModifierDescriptor = isModifierDescriptor;
+exports.isObservableObject = isObservableObject;
+exports.isBoxedObservable = isObservableValue;
+exports.isObservableArray = isObservableArray;
+exports.ObservableMap = ObservableMap;
+exports.isObservableMap = isObservableMap;
+exports.map = map;
+exports.transaction = transaction;
+exports.observable = observable;
+exports.computed = computed;
+exports.isObservable = isObservable;
+exports.isComputed = isComputed;
+exports.extendObservable = extendObservable;
+exports.extendShallowObservable = extendShallowObservable;
+exports.observe = observe;
+exports.intercept = intercept;
+exports.autorun = autorun;
+exports.autorunAsync = autorunAsync;
+exports.when = when;
+exports.reaction = reaction;
+exports.action = action;
+exports.isAction = isAction;
+exports.runInAction = runInAction;
+exports.expr = expr;
+exports.toJS = toJS;
+exports.createTransformer = createTransformer;
+exports.whyRun = whyRun;
+exports.trace = trace;
+exports.isArrayLike = isArrayLike;
+exports.default = everything;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/webpack/buildin/global.js")))
 
 /***/ }),
 

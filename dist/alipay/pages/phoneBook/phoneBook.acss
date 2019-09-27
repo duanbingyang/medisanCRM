@@ -130,12 +130,18 @@
   display: none;
 }
 
-.cml-20988fe4.container {
-  position: absolute;
-  top: 88rpx;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.cml-20988fe4.titleFont {
+  color: #D60011;
+  text-align: center;
+}
+
+.cml-20988fe4.phoneList {
+  margin: 20rpx;
+  border: 1px solid #EEE;
+}
+
+.cml-20988fe4.boxList {
+  border-bottom: 1px solid #EEE;
 }
 
 .cml-20988fe4.panel {
@@ -160,17 +166,14 @@
   background-color: rgba(162, 217, 192, 0.2);
 }
 
-.cml-20988fe4.panelItem .cml-20988fe4.text {
-  font-size: 48rpx;
-  color: #41B883;
+.cml-20988fe4.panelItem {
+  border-top: 1px solid #F6F6F6;
 }
 
 .cml-20988fe4.panelChild {
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
-  margin-top: 35rpx;
-  margin-bottom: 35rpx;
   margin-left: 35rpx;
   margin-right: 35rpx;
   -webkit-box-orient: vertical;
@@ -186,19 +189,23 @@
   background-color: rgba(162, 217, 192, 0.2); */
 }
 
-.cml-20988fe4.panelChildItem .cml-20988fe4.text {
-  font-size: 44rpx;
-}
-
-.cml-20988fe4.detail {
-  margin: 35rpx;
-}
-
-.cml-20988fe4.detailItem .cml-20988fe4.text {
-  font-size: 32rpx;
+.cml-20988fe4.panelChildItem {
+  padding: 12rpx 0;
 }
 
 .cml-20988fe4.text {
-  font-size: 38rpx;
+  color: #666;
+}
+
+.cml-20988fe4.right {
+  background-image: url(http://192.168.31.60:8000/alipay/static/img/sider_right_a09d99f.png);
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+
+.cml-20988fe4.bottom {
+  background-image: url(http://192.168.31.60:8000/alipay/static/img/greensider_bottom_65c6e3f.png);
+  background-position: center right;
+  background-repeat: no-repeat;
   color: #41B883;
 }

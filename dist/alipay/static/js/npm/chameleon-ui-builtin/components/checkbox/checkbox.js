@@ -18,6 +18,50 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var __INTERFACE__FILEPATH = "C:/medisanCRM/node_modules/chameleon-ui-builtin/components/checkbox/checkbox.interface";
+var __CML_ERROR__ = function throwError(content) {
+  throw new Error("\u6587\u4EF6\u4F4D\u7F6E: " + __INTERFACE__FILEPATH + "\n            " + content);
+};
+
+var __enableTypes__ = [];
+var __INTERFAE__DEFINES__ = {
+  "types": {
+    "EventDetail": {
+      "value": "Boolean",
+      "index": "Number"
+    }
+  },
+  "interfaces": {
+    "CheckboxInterface": {
+      "cstyle": "String",
+      "checked": "Boolean",
+      "label": "String",
+      "disabled": "Boolean",
+      "position": "String",
+      "groupIndex": "Number",
+      "checkedIcon": "String",
+      "uncheckIcon": "String",
+      "change": {
+        "input": ["EventDetail"],
+        "output": "Undefined"
+      },
+      "changeevent": {
+        "input": ["EventDetail"],
+        "output": "Undefined"
+      }
+    }
+  },
+  "classes": {}
+};
+var __CML__DEFINES__ = {
+  "types": {},
+  "interfaces": {},
+  "classes": {
+    "Checkbox": ["CheckboxInterface"]
+  }
+};
+var __CML__WRAPPER__ = __webpack_require__("../Users/Administrator/AppData/Roaming/npm/node_modules/chameleon-tool/node_modules/chameleon-loader/src/runtime/check.js");
+
 var Checkbox = function () {
   function Checkbox() {
     _classCallCheck(this, Checkbox);
@@ -64,14 +108,17 @@ var Checkbox = function () {
     this.computed = {
       checkStyle: function checkStyle() {
         var style = '';
+
         if (this.disabled) {
           style += 'opacity:0.5;';
         }
+
         if (this.position == 'right') {
           style += 'position:absolute;right:0;margin-right:45cpx;';
         } else {
           style += 'margin-right:13cpx;';
         }
+
         return style;
       },
       checkImg: function checkImg() {
@@ -81,6 +128,7 @@ var Checkbox = function () {
         if (this.disabled) {
           return 'cml-checkbox-disabled';
         }
+
         return this.innerChecked ? 'cml-checkbox-checked' : 'cml-checkbox-uncheck';
       },
       computedCstyle: function computedCstyle() {
@@ -106,7 +154,6 @@ var Checkbox = function () {
           value: this.innerChecked,
           index: this.groupIndex
         };
-
         this.$cmlEmit('changeevent', value);
         this.$cmlEmit('change', value);
       },
@@ -114,6 +161,7 @@ var Checkbox = function () {
         if (this.uncheckIcon) {
           this.uncheckImg = this.uncheckIcon;
         }
+
         if (this.checkedIcon) {
           this.checkedImg = this.checkedIcon;
         }
@@ -122,14 +170,14 @@ var Checkbox = function () {
   }
 
   _createClass(Checkbox, [{
-    key: 'created',
+    key: "created",
     value: function created() {
       var checked = this.checked;
 
       this.innerChecked = checked;
     }
   }, {
-    key: 'mounted',
+    key: "mounted",
     value: function mounted() {
       this.initImg();
     }
@@ -138,7 +186,7 @@ var Checkbox = function () {
   return Checkbox;
 }();
 
-exports.default = new Checkbox();
+exports.default = __CML__WRAPPER__(new Checkbox(), __CML_ERROR__, __enableTypes__, __INTERFAE__DEFINES__, __CML__DEFINES__);
 
 
 exports.default = _chameleonRuntime2.default.createComponent(exports.default).getOptions();
