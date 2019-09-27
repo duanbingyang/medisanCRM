@@ -118,6 +118,7 @@ class List {
     toporgdomshowId: -1,
     lists: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     listsItem: ['A', 'B', 'C'],
+    level: 0,
     list: [{
       "哈三联集团总部内线": [{
         "高层": [{
@@ -3259,8 +3260,7 @@ class List {
       console.log(e)
     },
     tapOrgFunction(e){
-      console.log(e)
-      console.log(e.clientY)
+
       const index = e.currentTarget.dataset.idx;
       if(this.toporgdomshowId == index){
         this.toporgdomshowId = -1
@@ -3288,78 +3288,135 @@ class List {
       }
     }
   }
+  created(res) {
+    console.log(res)
+    this.level = res.lv;
+    if(this.level == 2){
+      this.list[0]['哈三联集团总部内线'][0]['高层'].splice(0,1)
+    }else{
+      this.list[0]['哈三联集团总部内线'].splice(0,1)
+    }
+  }
 }
 
 export default  new List();
 
 </script>
 <style scoped>
-@media cml-type (web) {
-  @media screen and (min-width: 800px) {
-    .container {
-      top:20px;
-      position: inherit;
-      margin: 0 auto;
-    }
-    .container .titleFont{
-      font-size: 44px;
-      margin-top: 10px;
-    }
-    .container .phoneList{
-      margin: 20px 24%;
-    }
-    .container .boxItem{
-      font-size: 28px;
-      padding: 20px;
-    }
-    .container .boxItem .text{
-      font-size: 28px;
-    }
-    .container .panelItem {
-      padding: 6px;
-    }
-    .container .panelItem .text {
-      font-size: 26px;
-    }
+  @media cml-type (web) {
+    @media screen and (min-width: 800px) {
+      .container {
+        top:20px;
+        position: inherit;
+        margin: 0 auto;
+      }
+      .container .titleFont{
+        font-size: 44px;
+        margin-top: 10px;
+      }
+      .container .phoneList{
+        margin: 20px 24%;
+      }
+      .container .boxItem{
+        font-size: 28px;
+        padding: 20px;
+      }
+      .container .boxItem .text{
+        font-size: 28px;
+      }
+      .container .panelItem {
+        padding: 6px;
+      }
+      .container .panelItem .text {
+        font-size: 26px;
+      }
 
-    .container .panelChildItem{
-      padding: 6px 0;
-    }
+      .container .panelChildItem{
+        padding: 6px 0;
+      }
 
-    .container .panelChildItem .text{
-      font-size: 24px;
-    }
-    .container .detailItem{
-      padding: 12px
-    }
+      .container .panelChildItem .text{
+        font-size: 24px;
+      }
+      .container .detailItem{
+        padding: 12px
+      }
 
-    .container .detailItem .text{
-      font-size: 20px;
-    }
-    .container .cml-base{
-      font-size: inherit;
-    }
-    .container .detail{
-      margin: 20px;
-    }
-    .container .right {
-      background-size: auto 20px;
-      margin-right: 8px;
-    }
-    .container .bottom {
-      background-size: 20px auto;
-    }
+      .container .detailItem .text{
+        font-size: 20px;
+      }
+      .container .cml-base{
+        font-size: inherit;
+      }
+      .container .detail{
+        margin: 20px;
+      }
+      .container .right {
+        background-size: auto 20px;
+        margin-right: 8px;
+      }
+      .container .bottom {
+        background-size: 20px auto;
+      }
 
+    }
+    @media screen and (max-width: 800px) {
+      .container{
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-width: auto;
+        top: 28cpx;
+        margin-top: 20cpx;
+      }
+      .container .titleFont{
+        font-size: 42cpx;
+      }
+      .boxItem{
+        font-size: 38cpx;
+        padding: 20cpx;
+      }
+      .panelItem {
+        padding: 20cpx;
+      }
+      .panelItem .text {
+        font-size: 38cpx;
+      }
+      .panelChildItem{
+        padding: 12cpx 0;
+      }
+
+      .panelChildItem .text{
+        font-size: 36cpx;
+      }
+
+      .detailItem{
+        padding: 12cpx
+      }
+
+      .detailItem .text{
+        font-size: 32cpx;
+      }
+        
+      .right {
+        background-size: auto 30cpx;
+        margin-right: 8cpx;
+      }
+      .detail{
+        margin: 35cpx;
+      }
+      .bottom {
+        background-size: 30cpx auto;
+      }
+    }
+    
   }
-  @media screen and (max-width: 800px) {
+
+  @media cml-type (wx) {
     .container{
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
       max-width: auto;
-      top: 28cpx;
-      margin-top: 20cpx;
+      top: 88cpx;
     }
     .container .titleFont{
       font-size: 42cpx;
@@ -3401,120 +3458,72 @@ export default  new List();
       background-size: 30cpx auto;
     }
   }
-  
-}
 
-@media cml-type (wx) {
-  .container{
-    max-width: auto;
-    top: 88cpx;
+
+  .titleFont{
+    color: #D60011;
+    text-align: center;
   }
-  .container .titleFont{
-    font-size: 42cpx;
+  .phoneList{
+    margin: 20cpx;
+    border: 1px solid #EEE;
   }
-  .boxItem{
-    font-size: 38cpx;
-    padding: 20cpx;
+  .boxList{
+    border-bottom: 1px solid #EEE;
+  }
+  .panel {
+    display: flex;
+    width: 600cpx;
+    height: 300cpx;
+    margin-left: 75cpx;
+    margin-top: 35cpx;
+    margin-bottom: 35cpx;
+    flex-direction: column;
+    justify-content: center;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(162, 217, 192);
+    background-color: rgba(162, 217, 192, 0.2);
   }
   .panelItem {
-    padding: 20cpx;
+    border-top: 1px solid #F6F6F6;
   }
-  .panelItem .text {
-    font-size: 38cpx;
+  .panelChild {
+    display: flex;
+    margin-left: 35cpx;
+    margin-right: 35cpx;
+    flex-direction: column;
+    justify-content: center;
+    /* border-width: 2px;
+    border-style: solid;
+    border-color: rgb(162, 217, 192);
+    background-color: rgba(162, 217, 192, 0.2); */
   }
   .panelChildItem{
     padding: 12cpx 0;
   }
-
   .panelChildItem .text{
-    font-size: 36cpx;
   }
-
-  .detailItem{
-    padding: 12cpx
-  }
-
   .detailItem .text{
-    font-size: 32cpx;
   }
-    
+  .text {
+    color: #666;
+  }
   .right {
-    background-size: auto 30cpx;
-    margin-right: 8cpx;
-  }
-  .detail{
-    margin: 35cpx;
+    background-image:url('../../assets/images/sider_right.png');
+    background-position: center right;
+    background-repeat: no-repeat;
   }
   .bottom {
-    background-size: 30cpx auto;
+    background-image:url('../../assets/images/greensider_bottom.png');
+    background-position: center right;
+    background-repeat: no-repeat;
+    color: #41B883;
   }
-}
-
-
-.titleFont{
-  color: #D60011;
-  text-align: center;
-}
-.phoneList{
-  margin: 20cpx;
-  border: 1px solid #EEE;
-}
-.boxList{
-  border-bottom: 1px solid #EEE;
-}
-.panel {
-  display: flex;
-  width: 600cpx;
-  height: 300cpx;
-  margin-left: 75cpx;
-  margin-top: 35cpx;
-  margin-bottom: 35cpx;
-  flex-direction: column;
-  justify-content: center;
-  border-width: 2px;
-  border-style: solid;
-  border-color: rgb(162, 217, 192);
-  background-color: rgba(162, 217, 192, 0.2);
-}
-.panelItem {
-  border-top: 1px solid #F6F6F6;
-}
-.panelChild {
-  display: flex;
-  margin-left: 35cpx;
-  margin-right: 35cpx;
-  flex-direction: column;
-  justify-content: center;
-  /* border-width: 2px;
-  border-style: solid;
-  border-color: rgb(162, 217, 192);
-  background-color: rgba(162, 217, 192, 0.2); */
-}
-.panelChildItem{
-  padding: 12cpx 0;
-}
-.panelChildItem .text{
-}
-.detailItem .text{
-}
-.text {
-  color: #666;
-}
-.right {
-  background-image:url('../../assets/images/sider_right.png');
-  background-position: center right;
-  background-repeat: no-repeat;
-}
-.bottom {
-  background-image:url('../../assets/images/greensider_bottom.png');
-  background-position: center right;
-  background-repeat: no-repeat;
-  color: #41B883;
-}
 </style>
 
 <script cml-type="json">
-{
-  "base": {}
-}
+  {
+    "base": {}
+  }
 </script>
