@@ -189,10 +189,6 @@
   background-color: rgba(162, 217, 192, 0.2); */
 }
 
-.cml-20988fe4.panelChildItem {
-  padding: 12rpx 0;
-}
-
 .cml-20988fe4.text {
   color: #666;
 }

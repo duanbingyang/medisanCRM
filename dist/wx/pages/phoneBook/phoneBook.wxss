@@ -171,14 +171,6 @@ page {
   font-size: 38rpx;
 }
 
-.panelChildItem {
-  padding: 12rpx 0;
-}
-
-.panelChildItem .text {
-  font-size: 36rpx;
-}
-
 .detailItem {
   padding: 12rpx;
 }
@@ -257,10 +249,6 @@ page {
   border-style: solid;
   border-color: rgb(162, 217, 192);
   background-color: rgba(162, 217, 192, 0.2); */
-}
-
-.panelChildItem {
-  padding: 12rpx 0;
 }
 
 .text {

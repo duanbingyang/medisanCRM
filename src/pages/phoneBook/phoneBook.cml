@@ -528,37 +528,31 @@ class List {
         "总裁办": [{
           "秘书台": {
             "电话号码": 60300,
-            "手机号码": 123456789,
             "邮箱": "shixiaoguang@medisan.cn"
           }
         }, {
           "石小光": {
             "电话号码": 60301,
-            "手机号码": 123456789,
             "邮箱": "shixiaoguang@medisan.cn"
           }
         }, {
           "陈棋": {
             "电话号码": 60302,
-            "手机号码": 123456789,
-            "邮箱": "houxiaohu@medisan.cn"
-          }
-        }, {
-          "侯骁虎": {
-            "电话号码": 60303,
-            "手机号码": 123456789,
             "邮箱": "houxiaohu@medisan.cn"
           }
         }, {
           "曲美玲": {
             "电话号码": 60305,
-            "手机号码": 123456789,
             "邮箱": "houxiaohu@medisan.cn"
           }
         }, {
-          "任丽尧": {
+          "侯骁虎": {
+            "电话号码": 60303,
+            "邮箱": "houxiaohu@medisan.cn"
+          }
+        }, {
+          "任立尧": {
             "电话号码": 60306,
-            "手机号码": 123456789,
             "邮箱": "houxiaohu@medisan.cn"
           }
         }]
@@ -3371,24 +3365,27 @@ export default  new List();
         margin-top: 20cpx;
       }
       .container .titleFont{
-        font-size: 42cpx;
+        font-size: 50cpx;
       }
       .boxItem{
-        font-size: 38cpx;
+        font-size: 40cpx;
         padding: 20cpx;
+      }
+      .boxItem .text{
+        font-size: 38cpx;
       }
       .panelItem {
         padding: 20cpx;
       }
       .panelItem .text {
-        font-size: 38cpx;
+        font-size: 36cpx;
       }
       .panelChildItem{
-        padding: 12cpx 0;
+        padding: 20cpx 0 20cpx 20cpx;
       }
 
       .panelChildItem .text{
-        font-size: 36cpx;
+        font-size: 32cpx;
       }
 
       .detailItem{
@@ -3396,7 +3393,7 @@ export default  new List();
       }
 
       .detailItem .text{
-        font-size: 32cpx;
+        font-size: 28cpx;
       }
         
       .right {
@@ -3430,13 +3427,6 @@ export default  new List();
     }
     .panelItem .text {
       font-size: 38cpx;
-    }
-    .panelChildItem{
-      padding: 12cpx 0;
-    }
-
-    .panelChildItem .text{
-      font-size: 36cpx;
     }
 
     .detailItem{
@@ -3498,9 +3488,6 @@ export default  new List();
     border-style: solid;
     border-color: rgb(162, 217, 192);
     background-color: rgba(162, 217, 192, 0.2); */
-  }
-  .panelChildItem{
-    padding: 12cpx 0;
   }
   .panelChildItem .text{
   }

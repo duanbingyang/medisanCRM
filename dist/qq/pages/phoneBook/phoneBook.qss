@@ -208,10 +208,6 @@ page {
   background-color: rgba(162, 217, 192, 0.2); */
 }
 
-.panelChildItem {
-  padding: 12rpx 0;
-}
-
 .text {
   color: #666;
 }
