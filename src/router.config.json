@@ -1,6 +1,6 @@
 {
-  "mode": "history",
-  "domain": "http://www.medisan.cn",
+  "mode": "hash",
+  "domain": "http://www.hisanlian.com",
   "routes":[
     {
       "url": "/cml/h5/index",

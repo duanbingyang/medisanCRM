@@ -140,6 +140,7 @@ import cml from 'chameleon-api'
 import md5 from 'md5'
 import localStorage from 'localStorage'
 import WeValidator from 'we-validator'
+const apiPrefix = 'http://192.168.31.60:3000'
 
 class UserInfo   {
 
@@ -245,7 +246,7 @@ class UserInfo   {
         return false;
       }
         cml.post({
-          url: 'http://172.16.101.65:3000/api/addUser_crm',
+          url: `${apiPrefix}/api/addUser_crm`,
           data: this.formData
         }).then(res => {
           cml.showToast({
@@ -372,7 +373,7 @@ class UserInfo   {
       this.time(wait)
       this.sendCodeDis = true;
       cml.post({
-        url: 'http://172.16.101.65:3000/api/vCode',
+        url: `${apiPrefix}/api/vCode`,
         data: {
           mobile: this.formData.phone,
           nationcode: "86",
