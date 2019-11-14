@@ -1,5 +1,5 @@
 {
-  "mode": "hash",
+  "mode": "history",
   "domain": "http://www.hisanlian.com",
   "routes":[
     {

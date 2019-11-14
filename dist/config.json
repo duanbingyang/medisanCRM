@@ -13,11 +13,11 @@
             "path": "/pages/index/index"
         },
         "web": {
-            "url": "http://www.hisanlian.com#/cml/h5/index"
+            "url": "http://www.hisanlian.com/cml/h5/index"
         },
         "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
+            "url": "../weex/medisanCRM_e83bda7f6ad97ec98ba9.js",
+            "md5": "3EA1D146947C1D03AA5AF67D5D55408E",
             "query": {
                 "path": "/pages/index/index"
             }
@@ -37,11 +37,11 @@
             "path": "/pages/userInfo/userInfo"
         },
         "web": {
-            "url": "http://www.hisanlian.com#/cml/h5/userInfo"
+            "url": "http://www.hisanlian.com/cml/h5/userInfo"
         },
         "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
+            "url": "../weex/medisanCRM_e83bda7f6ad97ec98ba9.js",
+            "md5": "3EA1D146947C1D03AA5AF67D5D55408E",
             "query": {
                 "path": "/pages/userInfo/userInfo"
             }
@@ -61,11 +61,11 @@
             "path": "/pages/complate/complate"
         },
         "web": {
-            "url": "http://www.hisanlian.com#/cml/h5/resultPage"
+            "url": "http://www.hisanlian.com/cml/h5/resultPage"
         },
         "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
+            "url": "../weex/medisanCRM_e83bda7f6ad97ec98ba9.js",
+            "md5": "3EA1D146947C1D03AA5AF67D5D55408E",
             "query": {
                 "path": "/pages/complate/complate"
             }
@@ -85,11 +85,11 @@
             "path": "/pages/phoneBook/phoneBook"
         },
         "web": {
-            "url": "http://www.hisanlian.com#/cml/h5/phoneBook"
+            "url": "http://www.hisanlian.com/cml/h5/phoneBook"
         },
         "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
+            "url": "../weex/medisanCRM_e83bda7f6ad97ec98ba9.js",
+            "md5": "3EA1D146947C1D03AA5AF67D5D55408E",
             "query": {
                 "path": "/pages/phoneBook/phoneBook"
             }
