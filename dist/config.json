@@ -1,98 +1,22 @@
 [
     {
-        "wx": {
-            "appId": "123456",
-            "path": "/pages/index/index"
-        },
-        "baidu": {
-            "appId": "",
-            "path": "/pages/index/index"
-        },
-        "alipay": {
-            "appId": "",
-            "path": "/pages/index/index"
-        },
         "web": {
             "url": "http://www.hisanlian.com#/cml/h5/index"
-        },
-        "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
-            "query": {
-                "path": "/pages/index/index"
-            }
         }
     },
     {
-        "wx": {
-            "appId": "123456",
-            "path": "/pages/userInfo/userInfo"
-        },
-        "baidu": {
-            "appId": "",
-            "path": "/pages/userInfo/userInfo"
-        },
-        "alipay": {
-            "appId": "",
-            "path": "/pages/userInfo/userInfo"
-        },
         "web": {
             "url": "http://www.hisanlian.com#/cml/h5/userInfo"
-        },
-        "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
-            "query": {
-                "path": "/pages/userInfo/userInfo"
-            }
         }
     },
     {
-        "wx": {
-            "appId": "123456",
-            "path": "/pages/complate/complate"
-        },
-        "baidu": {
-            "appId": "",
-            "path": "/pages/complate/complate"
-        },
-        "alipay": {
-            "appId": "",
-            "path": "/pages/complate/complate"
-        },
         "web": {
             "url": "http://www.hisanlian.com#/cml/h5/resultPage"
-        },
-        "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
-            "query": {
-                "path": "/pages/complate/complate"
-            }
         }
     },
     {
-        "wx": {
-            "appId": "123456",
-            "path": "/pages/phoneBook/phoneBook"
-        },
-        "baidu": {
-            "appId": "",
-            "path": "/pages/phoneBook/phoneBook"
-        },
-        "alipay": {
-            "appId": "",
-            "path": "/pages/phoneBook/phoneBook"
-        },
         "web": {
             "url": "http://www.hisanlian.com#/cml/h5/phoneBook"
-        },
-        "weex": {
-            "url": "../weex/medisanCRM_a21b3cacd31b29dfd8db.js",
-            "md5": "49863D54B0CE5FBFF4807EBD4D254F0E",
-            "query": {
-                "path": "/pages/phoneBook/phoneBook"
-            }
         }
     }
 ]
