@@ -26,7 +26,7 @@ cml.config.merge({
     },
     build: {
       analysis: false,
-      publicPath: `${publicPath}`,
+      publicPath: `${publicPath}/web/`,
       apiPrefix
     }
   },
