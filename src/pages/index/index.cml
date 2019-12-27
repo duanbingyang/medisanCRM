@@ -1,10 +1,11 @@
 <template>
   <page title="chameleon">
-      <scroller height="{{-1}}">
         <view class="scroller-wrap" c-animation="{{animationData[0]}}" c-bind:click="handleClick">
           <demo-com title="{{title}}" image-src="{{chameleonSrc}}"></demo-com>
+          <view class="icpBox">
+            <a class="icp" href="http://www.beian.miit.gov.cn">京ICP备16010346号</a>
+          </view>
         </view>
-      </scroller>
   </page>
 </template>
 
@@ -35,6 +36,26 @@ export default new Index();
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.inner-scroll{
+  height: 640px;
+}
+.icpBox{
+  position: fixed;
+  text-align: center;
+  background-color: #999;
+  color: #FFF;
+  display: block;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  height: 40px;
+  line-height: 40px;
+}
+.icp{
+  display: inline-block;
+  color: #FFF;
+  text-decoration: none;
 }
 
 </style>
