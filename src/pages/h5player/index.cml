@@ -1,0 +1,105 @@
+<template>
+  <view class="container">
+    <div id="wrapper"></div>
+  </view>
+</template>
+
+<script>
+import cml from 'chameleon-api'
+import Chimee from 'chimee'
+const apiPrefix = 'http://49.234.40.20:3000'
+
+class h5player   {
+
+  data = {
+  }
+
+  computed = {
+  }
+
+  watch  = {
+  }
+  /*
+    bindblurevent  输入框失焦
+    testclick 提交按钮
+    selectchange  底部滚动选择
+    showClick 底部滚动选择
+    cancel  底部滚动选择
+    confirm 底部滚动选择
+    sendCode 发送验证码按钮
+    time  验证码倒计时
+  **/
+  methods = {
+    bindblurevent()  {
+      this.isfocus = false;
+    },
+    submitForm(e) {
+           
+    }
+  }
+  beforeCreate() {
+    
+  }
+
+  created() {
+  }
+
+  beforeMount() {
+  }
+
+  mounted() {
+    const chimeePlayer = new Chimee({
+      wrapper: "#wrapper",
+      src: 'http://cdn.toxicjohann.com/lostStar.mp4',
+      controls: false,
+      autoplay: false
+    });
+  }
+
+  beforeDestroy() {
+  }
+
+  destroyed() {
+  }
+}
+
+export default new h5player();
+</script>
+
+<style scoped>
+
+</style>
+
+<script cml-type="json">
+{
+  "base": {
+    "usingComponents": {
+        "c-actionsheet": "cml-ui/components/c-actionsheet/c-actionsheet",
+        "c-picker-panel": "cml-ui/components/c-picker-panel/c-picker-panel",
+        "c-picker": "cml-ui/components/c-picker/c-picker",
+        "c-picker-item": "cml-ui/components/c-picker-item/c-picker-item"
+      }
+  },
+  "qq": {},
+  "wx": {
+    "navigationBarTitleText": "index",
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#E2E2E2"
+  },
+  "alipay": {
+    "defaultTitle": "index",
+    "pullRefresh": false,
+    "allowsBounceVertical": "YES",
+    "titleBarColor": "#ffffff"
+  },
+  "baidu": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "index",
+    "backgroundColor": "#ffffff",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false,
+    "onReachBottomDistance": 50
+  }
+}
+</script>

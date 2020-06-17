@@ -1,0 +1,8 @@
+{
+    "usingComponents": {
+        "h5player": "./../../components/h5player/h5player"
+    },
+    "navigationBarTitleText": "index",
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#E2E2E2"
+}

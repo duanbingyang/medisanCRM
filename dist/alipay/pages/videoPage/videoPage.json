@@ -1,0 +1,9 @@
+{
+    "usingComponents": {
+        "h5player": "./../../components/h5player/h5player"
+    },
+    "defaultTitle": "index",
+    "pullRefresh": false,
+    "allowsBounceVertical": "YES",
+    "titleBarColor": "#ffffff"
+}

@@ -6,7 +6,9 @@
         "pages/index/index",
         "pages/userInfo/userInfo",
         "pages/complate/complate",
-        "pages/phoneBook/phoneBook"
+        "pages/phoneBook/phoneBook",
+        "pages/h5player/index",
+        "pages/videoPage/videoPage"
     ],
     "usingComponents": {}
 }

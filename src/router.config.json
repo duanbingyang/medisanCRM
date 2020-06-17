@@ -22,6 +22,16 @@
       "url": "/cml/h5/phoneBook",
       "path": "/pages/phoneBook/phoneBook",
       "name": "手机簿"
+    },
+    {
+      "url": "/cml/h5/h5player",
+      "path": "/pages/h5player/index",
+      "name": "h5播放器"
+    },
+    {
+      "url": "/cml/h5/video",
+      "path": "/pages/videoPage/videoPage",
+      "name": "视频列表"
     }
   ]
 }

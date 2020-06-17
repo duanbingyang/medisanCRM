@@ -1,0 +1,33 @@
+<view class="container  cml-base cml-view cml-156ec98a">
+  <image src="../../assets/images/banner.jpg" style="width:100%;hight:300px" class=" cml-base cml-image cml-156ec98a"></image>
+  <view class="videoContainer  cml-base cml-view cml-156ec98a">
+    <view class="prizeBox firstPrize  cml-base cml-view cml-156ec98a">
+      <p class="prizeTitle firstPrizeTitle  cml-base cml-p cml-156ec98a">一等奖</p>
+      <view a:for="{{firstPrize}}" a:for-index="videoIndex" a:for-item="videoItem" class="viewBox  cml-base cml-view cml-156ec98a">
+        <view class=" cml-base cml-view cml-156ec98a"><h5player url="{{videoItem['url']}}" v-bind:componentid="componentID(videoIndex) + '_first'" class=" cml-base cml-h5player cml-156ec98a"></h5player></view>
+        <p class="title  cml-base cml-p cml-156ec98a">{{videoItem['desc']}}<span class="desc  cml-base cml-span cml-156ec98a">{{videoItem['department']}}</span></p>
+      </view>
+    </view>
+    <view class="prizeBox secondPrize  cml-base cml-view cml-156ec98a">
+      <p class="prizeTitle secondPrizeTitle  cml-base cml-p cml-156ec98a">二等奖</p>
+      <view a:for="{{secondPrize}}" a:for-index="videoIndex" a:for-item="videoItem" class="viewBox  cml-base cml-view cml-156ec98a">
+        <view class=" cml-base cml-view cml-156ec98a"><h5player url="{{videoItem['url']}}" v-bind:componentid="componentID(videoIndex) + '_second'" class=" cml-base cml-h5player cml-156ec98a"></h5player></view>
+        <p class="title  cml-base cml-p cml-156ec98a">{{videoItem['desc']}}<span class="desc  cml-base cml-span cml-156ec98a">{{videoItem['department']}}</span></p>
+      </view>
+    </view>
+    <view class="prizeBox thirdPrize  cml-base cml-view cml-156ec98a">
+      <p class="prizeTitle thirdPrizeTitle  cml-base cml-p cml-156ec98a">三等奖</p>
+      <view a:for="{{thirdPrize}}" a:for-index="videoIndex" a:for-item="videoItem" class="viewBox  cml-base cml-view cml-156ec98a">
+        <view class=" cml-base cml-view cml-156ec98a"><h5player url="{{videoItem['url']}}" poster="1" v-bind:componentid="componentID(videoIndex) + '_third'" class=" cml-base cml-h5player cml-156ec98a"></h5player></view>
+        <p class="title  cml-base cml-p cml-156ec98a">{{videoItem['desc']}}<span class="desc  cml-base cml-span cml-156ec98a">{{videoItem['department']}}</span></p>
+      </view>
+    </view>
+    <view class="prizeBox forthPrize  cml-base cml-view cml-156ec98a">
+      <p class="prizeTitle forthPrizeTitle  cml-base cml-p cml-156ec98a">优秀奖</p>
+      <view a:for="{{forthPrize}}" a:for-index="videoIndex" a:for-item="videoItem" class="viewBox  cml-base cml-view cml-156ec98a">
+        <view class=" cml-base cml-view cml-156ec98a"><h5player url="{{videoItem['url']}}" v-bind:componentid="componentID(videoIndex) + '_forth'" class=" cml-base cml-h5player cml-156ec98a"></h5player></view>
+        <p class="title  cml-base cml-p cml-156ec98a">{{videoItem['desc']}}<span class="desc  cml-base cml-span cml-156ec98a">{{videoItem['department']}}</span></p>
+      </view>
+    </view>
+  </view>
+</view>

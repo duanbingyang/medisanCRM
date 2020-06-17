@@ -1,0 +1,7 @@
+{
+    "usingComponents": {
+        "c-actionsheet": "./../../npm/cml-ui/components/c-actionsheet/c-actionsheet",
+        "c-picker-panel": "./../../npm/cml-ui/components/c-picker-panel/c-picker-panel",
+        "c-picker": "./../../npm/cml-ui/components/c-picker/c-picker"
+    }
+}

@@ -12,9 +12,14 @@
     "chameleon-runtime": "0.2.2",
     "chameleon-store": "0.1.0-alpha.qq",
     "chameleon-ui-builtin": "0.2.11-alpha.qq",
+    "chimee": "^0.11.0",
+    "chimee-plugin-controlbar": "^0.4.11",
+    "chimee-plugin-gesture": "0.0.13",
     "cml-ui": "0.2.1",
     "localStorage": "^1.0.4",
     "md5": "^2.2.1",
+    "react": "^16.13.1",
+    "react-player": "^2.1.0",
     "ua-parser-js": "^0.7.20",
     "we-validator": "^2.1.10"
   }

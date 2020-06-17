@@ -140,7 +140,7 @@ import cml from 'chameleon-api'
 import md5 from 'md5'
 import localStorage from 'localStorage'
 import WeValidator from 'we-validator'
-const apiPrefix = 'http://49.234.40.20:3000'
+const apiPrefix = 'http://localhost:3000'
 
 class UserInfo   {
 
@@ -233,7 +233,6 @@ class UserInfo   {
       cml.showToast({
         message: type + ' button'
       })
-      console.log(this.formData)
 
       this.submitDis = true;
       
@@ -245,10 +244,12 @@ class UserInfo   {
         this.submitDis = false;
         return false;
       }
-        cml.post({
-          url: `${apiPrefix}/api/addUser_crm`,
-          data: this.formData
-        }).then(res => {
+      this.formData.given = false;
+      cml.post({
+        url: `${apiPrefix}/api/addUser_crm`,
+        data: this.formData
+      }).then(res => {
+        if(res.code == 0){
           cml.showToast({
             message: JSON.stringify(res),
             duration: 2000
@@ -259,19 +260,26 @@ class UserInfo   {
             query: {
               title: '提交成功',
               mainMessage: '可以凭此页面向工作人员领取精美礼品',
+              code: res.message.sqlMsg.verificationCode,
               subMessage: ''
             }
           })
-        }, err => {
+        }else{
           cml.showToast({
-            message: JSON.stringify(err),
+            message: JSON.stringify(res),
             duration: 2000
           })
-          this.submitDis = false;
-          console.log(err)
+        }
+      }, err => {
+        cml.showToast({
+          message: err.msg,
+          duration: 2000
         })
+        this.submitDis = false;
+        console.log(err)
+      })
       if(this.userInputCode === this.code){
-        
+        //todo 手机验证码提交判断
       }else{
         cml.showToast({
           message: '验证码输入有误',
@@ -357,8 +365,8 @@ class UserInfo   {
     },
     sendCode() {
       const timestamp = Date.parse(new Date()) / 1000;
-      const sdkappid = 1400245773;
-      const random = Math.floor(Math.random()*10+1);
+      // const sdkappid = 1400245773;
+      // const random = Math.floor(Math.random()*10+1);
       let wait = 10;
       if((this.formData.phone).toString().length != 11 || !/^1/.test(this.formData.phone.toString())){
         cml.showToast({
@@ -431,16 +439,17 @@ class UserInfo   {
   }
 
   beforeCreate() {
-    if(localStorage.getItem('userSign')){
-      cml.navigateTo({
-        path: '/pages/complate/complate',
-        query: {
-          title: '您已领取过啦',
-          mainMessage: '您已经参与过活动，谢谢您的热情参与',
-          subMessage: ''
-        }
-      })
-    }
+    // 进入localstorage判断用户是否领取过
+    // if(localStorage.getItem('userSign')){
+    //   cml.navigateTo({
+    //     path: '/pages/complate/complate',
+    //     query: {
+    //       title: '您已领取过啦',
+    //       mainMessage: '您已经参与过活动，谢谢您的热情参与',
+    //       subMessage: ''
+    //     }
+    //   })
+    // }
   }
 
   created() {

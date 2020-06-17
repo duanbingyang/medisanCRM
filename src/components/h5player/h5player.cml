@@ -1,0 +1,103 @@
+<template>
+  <view class="container">
+    <div id="{{this.componentid}}"></div>
+  </view>
+</template>
+
+<script>
+
+import cml from 'chameleon-api'
+import Chimee from 'chimee'
+import chimeePluginControlbar from 'chimee-plugin-controlbar';
+
+class H5player {
+  
+  props = {
+    title: {
+      type: String,
+      default: ''
+    },
+    imageSrc: {
+      type: String,
+      default: ''
+    },
+    url: {
+      type: String,
+      default: '12345'
+    },
+    componentid: {
+      type: String,
+      default: 'wrapper1'
+    }
+  }
+
+  data = {
+  }
+
+  computed = {
+  }
+
+  watch  = {
+  }
+  /*
+    bindblurevent  输入框失焦
+    testclick 提交按钮
+    selectchange  底部滚动选择
+    showClick 底部滚动选择
+    cancel  底部滚动选择
+    confirm 底部滚动选择
+    sendCode 发送验证码按钮
+    time  验证码倒计时
+  **/
+  methods = {
+    bindblurevent()  {
+      this.isfocus = false;
+    },
+    submitForm(e) {
+          
+    }
+  }
+  beforeCreate() {
+    
+  }
+
+  created() {
+  }
+
+  beforeMount() {
+  }
+
+  mounted() {
+    Chimee.install(chimeePluginControlbar)
+    const chimeePlayer = new Chimee({
+      wrapper: "#" + this.componentid,
+      src: this.url,
+      controls: false,
+      autoplay: false,
+      plugin: [
+        chimeePluginControlbar.name // 或者 'chimeeControl'
+      ]
+    });
+    console.log(this.url, '==================')
+  }
+
+  beforeDestroy() {
+  }
+
+  destroyed() {
+  }
+}
+
+export default new H5player();
+
+</script>
+<style scoped>
+
+</style>
+<script cml-type="json">
+{
+  "base": {
+    "usingComponents": {}
+  }
+}
+</script>

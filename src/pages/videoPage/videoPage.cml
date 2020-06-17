@@ -1,0 +1,228 @@
+<template>
+
+  <view class="container">
+    <image src="../../assets/images/banner.jpg" style="width: 100%;hight: 300px;"></image>
+    <view class="videoContainer">
+      <view class="prizeBox firstPrize">
+        <p class='prizeTitle firstPrizeTitle'>一等奖</p>
+        <view
+          c-for="{{firstPrize}}"
+          c-for-index="videoIndex"
+          c-for-item="videoItem"
+          class="viewBox"
+        >
+          <h5player url="{{videoItem['url']}}" v-bind:componentid="componentID(videoIndex) + '_first'"></h5player>
+          <p class='title'>{{videoItem['desc']}}<span class="desc">{{videoItem['department']}}</span></p>
+        </view>
+      </view>
+      <view class="prizeBox secondPrize">
+        <p class='prizeTitle secondPrizeTitle'>二等奖</p>
+        <view
+          c-for="{{secondPrize}}"
+          c-for-index="videoIndex"
+          c-for-item="videoItem"
+          class="viewBox"
+        >
+          <h5player url="{{videoItem['url']}}" v-bind:componentid="componentID(videoIndex) + '_second'"></h5player>
+          <p class='title'>{{videoItem['desc']}}<span class="desc">{{videoItem['department']}}</span></p>
+        </view>
+      </view>
+      <view class="prizeBox thirdPrize">
+        <p class='prizeTitle thirdPrizeTitle'>三等奖</p>
+        <view
+          c-for="{{thirdPrize}}"
+          c-for-index="videoIndex"
+          c-for-item="videoItem"
+          class="viewBox"
+        >
+          <h5player url="{{videoItem['url']}}" poster="1" v-bind:componentid="componentID(videoIndex) + '_third'"></h5player>
+          <p class='title'>{{videoItem['desc']}}<span class="desc">{{videoItem['department']}}</span></p>
+        </view>
+      </view>
+      <view class="prizeBox forthPrize">
+        <p class='prizeTitle forthPrizeTitle'>优秀奖</p>
+        <view
+          c-for="{{forthPrize}}"
+          c-for-index="videoIndex"
+          c-for-item="videoItem"
+          class="viewBox"
+        >
+          <h5player url="{{videoItem['url']}}" v-bind:componentid="componentID(videoIndex) + '_forth'"></h5player>
+          <p class='title'>{{videoItem['desc']}}<span class="desc">{{videoItem['department']}}</span></p>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import cml from 'chameleon-api'
+import Chimee from 'chimee'
+import chimeePluginControlbar from 'chimee-plugin-controlbar'
+const apiPrefix = 'http://49.234.40.20:3000'
+
+class h5playerView   {
+
+  data = {
+    firstPrize: [{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/1.mp4',
+      desc: '《献礼哈三联成立24周年暨IPO过会3周年》',
+      department: '证券投资部 杨旭'
+    }],
+    secondPrize: [{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/2.mp4',
+      desc: '《三》',
+      department: '总裁办 侯骁虎'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/3.mp4',
+      desc: '《哈三联守护者》',
+      department: '安保科 马金亮'
+    }],
+    thirdPrize: [{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/4.mp4',
+      desc: '《立足本职，跟我在三联上班》',
+      department: '审计中心 刘天舒'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/5.mp4',
+      desc: '《感恩相遇》',
+      department: '国际认证办公室 倪悦'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/6.mp4',
+      desc: '《今生我们有缘》',
+      department: '空调制水车间 刘东波'
+    }],
+    forthPrize: [{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/7.mp4',
+      desc: '《光影哈三联》',
+      department: '行政部 徐春雨'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/8.mp4',
+      desc: '《开会》',
+      department: '采购部 姚丽丽'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/9.mp4',
+      desc: '《祝福哈三联》',
+      department: '工程技术研究中心 孙英华'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/10.mp4',
+      desc: '《储运部机修班组助力哈三联百年基业》',
+      department: '储运部 薛玉梁'
+    },{
+      url: 'http://medisan.oss-cn-beijing.aliyuncs.com/shortVideo/11.mp4',
+      desc: '《成长中的哈三联》',
+      department: '储运部 卫超'
+    }]
+  }
+
+  computed = {
+  }
+
+  watch  = {
+  }
+  /*
+    bindblurevent  输入框失焦
+    testclick 提交按钮
+    selectchange  底部滚动选择
+    showClick 底部滚动选择
+    cancel  底部滚动选择
+    confirm 底部滚动选择
+    sendCode 发送验证码按钮
+    time  验证码倒计时
+  **/
+  methods = {
+    bindblurevent() {
+      this.isfocus = false;
+    },
+    submitForm(e) {
+           
+    },
+    componentID(index) {
+      index++
+      return 'wrapper' + index
+    },
+  }
+  beforeCreate() {
+    
+  }
+
+  created() {
+  }
+
+  beforeMount() {
+  }
+
+  mounted() {
+  }
+
+  beforeDestroy() {
+  }
+
+  destroyed() {
+  }
+}
+
+export default new h5playerView();
+</script>
+
+<style scoped>
+.videoContainer{
+  padding: 0 20px;
+  background-image: url('../../assets/images/videobg.jpg')
+}
+.prizeBox{
+  margin-bottom:30px;
+}
+.viewBox{
+  background-color: rgba(255,255,255,0.7);
+  margin-bottom: 40px;
+  border-radius: 5px;
+}
+.prizeTitle{
+  margin: 0 0 10px 0;
+  font-size: 30px;
+  text-align: center;
+}
+.firstPrizeTitle {
+  margin-top: 30px;
+}
+.title{
+  font-size: 20px;
+  color: #222;
+  padding: 10px;
+}
+.desc{
+  color: #666;
+  font-size: 16px;
+}
+</style>
+
+<script cml-type="json">
+{
+  "base": {
+    "usingComponents": {
+        "h5player": "/components/h5player/h5player"
+      }
+  },
+  "qq": {},
+  "wx": {
+    "navigationBarTitleText": "index",
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#E2E2E2"
+  },
+  "alipay": {
+    "defaultTitle": "index",
+    "pullRefresh": false,
+    "allowsBounceVertical": "YES",
+    "titleBarColor": "#ffffff"
+  },
+  "baidu": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "index",
+    "backgroundColor": "#ffffff",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false,
+    "onReachBottomDistance": 50
+  }
+}
+</script>
