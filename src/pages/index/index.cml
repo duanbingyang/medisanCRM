@@ -3,7 +3,7 @@
         <view class="scroller-wrap" c-animation="{{animationData[0]}}" c-bind:click="handleClick">
           <demo-com title="{{title}}" image-src="{{chameleonSrc}}"></demo-com>
           <view class="icpBox">
-            <a class="icp" href="http://www.beian.miit.gov.cn">京ICP备16010346号</a>
+            <a class="icp" href="https://beian.miit.gov.cn/">京ICP备16010346号</a>
           </view>
         </view>
   </page>

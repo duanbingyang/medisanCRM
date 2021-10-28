@@ -2,7 +2,7 @@
       <view class="scroller-wrap  cml-base cml-view cml-c84c024c" animation="{{(animationData[0]).actions}}" onTransitionend="_cmlInline" data-eventtransitionend="{{['_animationCb','animationData[0]','$event']}}" onTap="_cmlEventProxy" data-eventtap="{{['handleClick']}}">
         <view class=" cml-base cml-view cml-c84c024c"><demo-com title="{{title}}" image-src="{{chameleonSrc}}" class=" cml-base cml-demo-com cml-c84c024c"></demo-com></view>
         <view class="icpBox  cml-base cml-view cml-c84c024c">
-          <a class="icp  cml-base cml-a cml-c84c024c" href="http://www.beian.miit.gov.cn">京ICP备16010346号</a>
+          <a class="icp  cml-base cml-a cml-c84c024c" href="https://beian.miit.gov.cn/">京ICP备16010346号</a>
         </view>
       </view>
   </cml-buildin-page></view>

@@ -16,8 +16,8 @@
             "url": "http://www.hisanlian.com#/"
         },
         "weex": {
-            "url": "http://www.hisanlian.com/weex/medisanCRM_b5f3906dc0dbe3949942.js",
-            "md5": "69F1CD4FDAF3C9E6AD688E12E53961EB",
+            "url": "http://www.hisanlian.com/weex/medisanCRM_e1329a6be74f545b22b8.js",
+            "md5": "832F81075A5DE2A8D569670A3E0D9196",
             "query": {
                 "path": "/pages/index/index"
             }
@@ -40,8 +40,8 @@
             "url": "http://www.hisanlian.com#/cml/h5/userInfo"
         },
         "weex": {
-            "url": "http://www.hisanlian.com/weex/medisanCRM_b5f3906dc0dbe3949942.js",
-            "md5": "69F1CD4FDAF3C9E6AD688E12E53961EB",
+            "url": "http://www.hisanlian.com/weex/medisanCRM_e1329a6be74f545b22b8.js",
+            "md5": "832F81075A5DE2A8D569670A3E0D9196",
             "query": {
                 "path": "/pages/userInfo/userInfo"
             }
@@ -64,8 +64,8 @@
             "url": "http://www.hisanlian.com#/cml/h5/resultPage"
         },
         "weex": {
-            "url": "http://www.hisanlian.com/weex/medisanCRM_b5f3906dc0dbe3949942.js",
-            "md5": "69F1CD4FDAF3C9E6AD688E12E53961EB",
+            "url": "http://www.hisanlian.com/weex/medisanCRM_e1329a6be74f545b22b8.js",
+            "md5": "832F81075A5DE2A8D569670A3E0D9196",
             "query": {
                 "path": "/pages/complate/complate"
             }
@@ -88,8 +88,8 @@
             "url": "http://www.hisanlian.com#/cml/h5/phoneBook"
         },
         "weex": {
-            "url": "http://www.hisanlian.com/weex/medisanCRM_b5f3906dc0dbe3949942.js",
-            "md5": "69F1CD4FDAF3C9E6AD688E12E53961EB",
+            "url": "http://www.hisanlian.com/weex/medisanCRM_e1329a6be74f545b22b8.js",
+            "md5": "832F81075A5DE2A8D569670A3E0D9196",
             "query": {
                 "path": "/pages/phoneBook/phoneBook"
             }
@@ -112,8 +112,8 @@
             "url": "http://www.hisanlian.com#/cml/h5/h5player"
         },
         "weex": {
-            "url": "http://www.hisanlian.com/weex/medisanCRM_b5f3906dc0dbe3949942.js",
-            "md5": "69F1CD4FDAF3C9E6AD688E12E53961EB",
+            "url": "http://www.hisanlian.com/weex/medisanCRM_e1329a6be74f545b22b8.js",
+            "md5": "832F81075A5DE2A8D569670A3E0D9196",
             "query": {
                 "path": "/pages/h5player/index"
             }
@@ -136,8 +136,8 @@
             "url": "http://www.hisanlian.com#/cml/h5/video"
         },
         "weex": {
-            "url": "http://www.hisanlian.com/weex/medisanCRM_b5f3906dc0dbe3949942.js",
-            "md5": "69F1CD4FDAF3C9E6AD688E12E53961EB",
+            "url": "http://www.hisanlian.com/weex/medisanCRM_e1329a6be74f545b22b8.js",
+            "md5": "832F81075A5DE2A8D569670A3E0D9196",
             "query": {
                 "path": "/pages/videoPage/videoPage"
             }
